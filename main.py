@@ -412,12 +412,16 @@ if "Mark" in characters.characters:
         elif x == "Van":
             firstchar = Van(*setti.van)
 else:
-    firstchar = Van(*setti.van)
-    secondchar = Mario(*setti.mario)
+    if characters.characters[0] == "Van":
+        firstchar = Van(*setti.van)
+        secondchar = Mario(*setti.mario)
+    else:
+        firstchar = Mario(*setti.mario)
+        secondchar = Van(*setti.van)        
             
 
 
-board = Board(setti.width, setti.height,  firstchar, secondchar, [Platform(setti.width, 20, 0, setti.height), *plats], [], [])
+board = Board(setti.width, setti.height,  secondchar, firstchar, [Platform(setti.width, 20, 0, setti.height), *plats], [], [])
 board.enemies()
 screen = pg.display.set_mode((setti.width, setti.height))
 board.run()

@@ -51,12 +51,12 @@ leftmissleImage = pg.transform.scale(pg.transform.rotate(missleImage, 270), (mis
 vansize = [40, 80]
 vanImage = pg.transform.scale(get_image("van.png"), (vansize[0], vansize[1]))
 #width, height, posx, posy, image, dmg, movespeed, shootpause, hp, 0
-van = [vansize[0], vansize[1], 500, 720, vanImage, 1, 3, 1000, 20, 0]
+van = [vansize[0], vansize[1], 500, 720, vanImage, 1, 3, 600, 20, 0]
 shootwidth = 2
 showerwidth = 100
 showerheight = 500
-showervel = 12
-shotguncd = 1500
+showervel = 8
+shotguncd = 1000
 showercd = 1000
 showersize = 1
 
@@ -70,7 +70,7 @@ fatleftmissleImage = pg.transform.scale(pg.transform.rotate(missleImage, 270), (
 marksize = [40, 80]
 markImage = pg.transform.scale(get_image("mark.png"), (marksize[0], marksize[1]))
 #width, height, posx, posy, image, dmg, movespeed, shootpause, hp, 0
-mark = [marksize[0], marksize[1], 600, 400, markImage, 1, 2, 1000, 25, 0]
+mark = [marksize[0], marksize[1], 600, 400, markImage, 1, 2, 1000, 30, 0]
 tremorsteps = 16
 tremorpause = 120
 tremorjump = 5
@@ -84,7 +84,7 @@ maxstunnedframes = 140
 mariosize = [40, 80]
 marioImage = pg.transform.scale(get_image("mario.png"), (mariosize[0], mariosize[1]))
 #width, height, posx, posy, image, dmg, movespeed, shootpause, hp, 0
-mario = [mariosize[0], mariosize[1], 600, 720, marioImage, 1, 5, 400, 15, 0]
+mario = [mariosize[0], mariosize[1], 600, 720, marioImage, 1, 5, 300, 15, 0]
 charmwidth = 20
 charmheight = 20
 charmimage = pg.transform.scale(get_image("charm.png"), (charmwidth, charmheight))
@@ -92,6 +92,6 @@ charmcrushimage = charmimage
 charmtime = 2500
 charmedvel = 3
 charmvelx = 6
-charmcd = 1000
+charmcd = 2000
 maxcharmedframes = 140
 
