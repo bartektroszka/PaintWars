@@ -84,6 +84,8 @@ class Board:
     def run(self):
         ct = self.checktremor()
         pg.init()
+        soundObj = pg.mixer.Sound('pump.wav')
+        soundObj.play()
         myfont = pg.font.SysFont('monospace', 100)
         pg.display.set_caption("Paint Wars")
         while self.running:
@@ -424,8 +426,9 @@ else:
 board = Board(setti.width, setti.height,  secondchar, firstchar, [Platform(setti.width, 20, 0, setti.height), *plats], [], [])
 board.enemies()
 screen = pg.display.set_mode((setti.width, setti.height))
+
 board.run()
-    
+
 
 
 

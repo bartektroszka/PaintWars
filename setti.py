@@ -94,4 +94,3 @@ charmedvel = 3
 charmvelx = 6
 charmcd = 2000
 maxcharmedframes = 140
-
