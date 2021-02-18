@@ -83,13 +83,14 @@ class Board:
 
     def run(self):
         ct = self.checktremor()
-        pg.init()
-        soundObj = pg.mixer.Sound('../Assets/Sounds/pump.wav')
+        songs = [pg.mixer.Sound(setti.song_pump), pg.mixer.Sound(setti.song_sweetdreams), pg.mixer.Sound(setti.song_duhast), pg.mixer.Sound(setti.song_intheend)]
+        soundObj = random.choice(songs)
         soundObj.play()
         myfont = pg.font.SysFont('monospace', 100)
-        pg.display.set_caption("Paint Wars")
+        pg.display.set_caption(setti.title)
+        bg = pg.transform.scale(setti.get_image("../Assets/Pics/bg2.png").convert_alpha(), (self.width, self.height))
         while self.running:
-            pg.time.delay(8)
+            pg.time.delay(6)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     self.running = False
@@ -99,13 +100,13 @@ class Board:
             for x in self.missles:
                 x.move()
             if self.boy.hp <= 0:
-                screen.blit(myfont.render(self.boy.__class__.__name__ + " lost", 1, (255, 255, 255)), (setti.width/3, setti.height/2))
+                screen.blit(myfont.render(self.boy.__class__.__name__ + " lost", 1, (255, 255, 255)), (self.board.width/3, self.board.height/2))
                 self.boy = 0
                 pg.display.flip()
                 sleep(3)
                 break
             if self.boy2.hp <= 0:
-                screen.blit(myfont.render(self.boy2.__class__.__name__ + " lost", 1, (255, 255, 255)), (setti.width/3, setti.height/2))
+                screen.blit(myfont.render(self.boy2.__class__.__name__ + " lost", 1, (255, 255, 255)), (self.board.width/3, self.board.height/2))
                 self.boy2 = 0
                 pg.display.flip()
                 sleep(3)
@@ -113,7 +114,10 @@ class Board:
             for x in self.charms:
                 x.move()
             next(ct)
-            screen.fill((0,0,0))  
+            
+            #gameDisplay.blit(bg, (0, 0))
+            screen.fill([255, 255, 255])
+            screen.blit(bg, bg.get_rect())  
             self.draw()
             pg.display.flip()   
 
@@ -149,7 +153,7 @@ class Charm(Object):
         self.owner = owner
 
     def move(self):
-        if(self.posx < 0 or self.posx > self.board.width) or (self.posy < 0) or (self.posy > setti.height):
+        if(self.posx < 0 or self.posx > self.board.width) or (self.posy < 0) or (self.posy > self.board.height):
             self.board.charms.remove(self)
         if(self.crushed):
             if((pg.time.get_ticks() - self.crushtime) > setti.charmtime):
@@ -183,7 +187,7 @@ class Missle(Object):
         
 
     def move(self):
-        if(self.posx < 0 or self.posx > self.board.width) or (self.posy < 0) or (self.posy > setti.height):
+        if(self.posx < 0 or self.posx > self.board.width) or (self.posy < 0) or (self.posy > self.board.height):
             self.board.missles.remove(self)
         if(self.crushed):
             if((pg.time.get_ticks() - self.crushtime) > self.splashtime):
@@ -229,8 +233,8 @@ class Character(Object):
         self.blitfac = 0
 
     def update(self, p_up, p_left, p_right, p_sleft, p_sright, superab):
-        if self.posy > setti.height:
-            self.posy = setti.height - self.height
+        if self.posy > self.board.height:
+            self.posy = self.board.height - self.height
             self.vely = 0
         self.prevvely = self.vely
         if self.stunned:
@@ -355,11 +359,11 @@ class Van(Character):
 
             else:
                 self.board.missles.append(Missle(setti.misslewidth, setti.missleheight, self.posx + setti.safeshot, 
-                self.posy + self.height * setti.shootheight, setti.leftmissleImage, -(setti.misvel + self.velx), self.vely*setti.spreadfactor + setti.shootwidth, self.dmg,  setti.splashtime, setti.crushImage, self.board))
+                self.posy + self.height * setti.shootheight, setti.leftmissleImage, -setti.misvel + self.velx, self.vely*setti.spreadfactor + setti.shootwidth, self.dmg,  setti.splashtime, setti.crushImage, self.board))
                 self.board.missles.append(Missle(setti.misslewidth, setti.missleheight, self.posx + setti.safeshot, 
-                self.posy + self.height * setti.shootheight, setti.leftmissleImage, -(setti.misvel + self.velx), self.vely*setti.spreadfactor, self.dmg,  setti.splashtime, setti.crushImage, self.board))
+                self.posy + self.height * setti.shootheight, setti.leftmissleImage, -setti.misvel + self.velx, self.vely*setti.spreadfactor, self.dmg,  setti.splashtime, setti.crushImage, self.board))
                 self.board.missles.append(Missle(setti.misslewidth, setti.missleheight, self.posx + setti.safeshot, 
-                self.posy + self.height * setti.shootheight, setti.leftmissleImage, -(setti.misvel + self.velx), self.vely*setti.spreadfactor - setti.shootwidth, self.dmg,  setti.splashtime, setti.crushImage, self.board))
+                self.posy + self.height * setti.shootheight, setti.leftmissleImage, -setti.misvel + self.velx, self.vely*setti.spreadfactor - setti.shootwidth, self.dmg,  setti.splashtime, setti.crushImage, self.board))
 
 
     def shower(self):
@@ -413,23 +417,26 @@ class Billy(Character):
                 self.posy + self.height * setti.shootheight, setti.leftmissleImage, -setti.misvel + self.velx, self.vely*setti.spreadfactor, self.dmg,  setti.splashtime, setti.crushImage, self.board))
 
     
-
+pg.init()
+info = pg.display.Info() # You have to call this before pygame.display.set_mode()
+screen_width,screen_height = info.current_w - setti.width_correction,info.current_h - setti.height_correction
 plats = []
 #generate platforms randomly
 for i in range(setti.numberofplatforms):
     stopper = True
     platform_x, platform_y = 0, 0
+    plat_width = random.choice(setti.platform_widths)
     while stopper:
-        platform_x = random.randint(0, setti.width)
-        platform_y = random.randint(0, setti.height)
+        platform_x = random.randint(0, screen_width)
+        platform_y = random.randint(0, screen_height)
         found = True
         for platform in plats:
-            if abs(platform.posx - platform_x) < setti.platform_dist[0] and abs(platform.posy - platform_y) < setti.platform_dist[1]:
+            if abs(platform.posx - platform_x) < setti.platform_dist[0] and abs(platform.posy - platform_y) < setti.platform_dist[1] or platform_x + plat_width > screen_width:
                 found = False
         stopper = not found
 
 
-    plats.append(Platform(random.choice(setti.platform_widths), 10, platform_x, platform_y))
+    plats.append(Platform(plat_width, setti.platform_height, platform_x, platform_y))
 
 if "Mark" in characters.characters:
     secondchar = Mark(*setti.mark)
@@ -447,10 +454,10 @@ else:
         secondchar = Van(*setti.van)        
             
 
-
-board = Board(setti.width, setti.height,  secondchar, firstchar, [Platform(setti.width, 20, 0, setti.height), *plats], [], [])
+board = Board(screen_width,screen_height,  secondchar, firstchar, [Platform(screen_width, setti.platform_height, 0, screen_height - setti.platform_height), *plats], [], [])
 board.enemies()
-screen = pg.display.set_mode((setti.width, setti.height))
+screen = pg.display.set_mode((screen_width,screen_height))
+
 
 board.run()
 

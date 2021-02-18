@@ -23,7 +23,7 @@ characters =['Mark', 'billy']                         #
 
 
 #Game options
-title = "Paint Wars"
+title = "Hot Men Cool Boys"
 missleImage = get_image("../Assets/Pics/dropp.png")
 crushImage = pg.transform.scale(get_image("../Assets/Pics/splash.png"), (20, 20))
 numberofplatforms = 20
@@ -32,8 +32,8 @@ hp_size = [3,5]
 hp_space = 1
 hp_height = -10
 hp_image = pg.transform.scale(get_image("../Assets/Pics/hp.png"), np.array(hp_size))
-width = 1500
-height = 800
+width = 1700
+height = 1100
 splashtime = 200
 misslewidth = 30
 missleheight = 15
@@ -49,10 +49,12 @@ safeshot = -40
 spreadfactor = 0.3
 rightmissleImage = pg.transform.scale(pg.transform.rotate(missleImage, 90), (misslewidth, missleheight))
 leftmissleImage = pg.transform.scale(pg.transform.rotate(missleImage, 270), (misslewidth, missleheight))
-platform_dist = [300, 50]
-platform_widths = [200, 180, 400, 250]
-
-
+platform_dist = [550, 40]
+platform_widths = [300, 250, 500, 450]
+song_pump = '../Assets/Sounds/pump.wav'
+song_sweetdreams = '../Assets/Sounds/sweetdreams.wav'
+song_duhast = '../Assets/Sounds/duhast.wav'
+song_intheend = '../Assets/Sounds/intheend.wav'
 #VAN
 vansize = [60, 120]
 vanImage = pg.transform.scale(get_image("../Assets/Pics/van.png"), (vansize[0], vansize[1]))
@@ -65,7 +67,9 @@ showervel = 6
 shotguncd = 2000
 showercd = 3000
 showersize = 1
-
+platform_height= 25
+width_correction = 0
+height_correction = 200
 
 
 
@@ -87,10 +91,10 @@ stunnedbonus = 2
 maxstunnedframes = 140
 
 #billy
-billysize = [40, 80]
+billysize = [60, 120]
 billyImage = pg.transform.scale(get_image("../Assets/Pics/billy.png"), (billysize[0], billysize[1]))
 #width, height, posx, posy, image, dmg, movespeed, shootpause, hp, 0
-billy = [billysize[0], billysize[1], 600, 720, billyImage, 1, 5, 300, 15, 0]
+billy = [billysize[0], billysize[1], 600, 720, billyImage, 1, 5, 500, 15, 0]
 charmwidth = 20
 charmheight = 20
 charmimage = pg.transform.scale(get_image("../Assets/Pics/charm.png"), (charmwidth, charmheight))
@@ -98,5 +102,5 @@ charmcrushimage = charmimage
 charmtime = 2500
 charmedvel = 3
 charmvelx = 6
-charmcd = 2000
+charmcd = 3500
 maxcharmedframes = 140
