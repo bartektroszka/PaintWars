@@ -100,13 +100,13 @@ class Board:
             for x in self.missles:
                 x.move()
             if self.boy.hp <= 0:
-                screen.blit(myfont.render(self.boy.__class__.__name__ + " lost", 1, (255, 255, 255)), (self.board.width/3, self.board.height/2))
+                screen.blit(myfont.render(self.boy.__class__.__name__ + " lost", 1, (255, 100, 255)), (self.width/3, self.height/2))
                 self.boy = 0
                 pg.display.flip()
                 sleep(3)
                 break
             if self.boy2.hp <= 0:
-                screen.blit(myfont.render(self.boy2.__class__.__name__ + " lost", 1, (255, 255, 255)), (self.board.width/3, self.board.height/2))
+                screen.blit(myfont.render(self.boy2.__class__.__name__ + " lost", 1, (255, 100, 255)), (self.width/3, self.height/2))
                 self.boy2 = 0
                 pg.display.flip()
                 sleep(3)
@@ -115,7 +115,6 @@ class Board:
                 x.move()
             next(ct)
             
-            #gameDisplay.blit(bg, (0, 0))
             screen.fill([255, 255, 255])
             screen.blit(bg, bg.get_rect())  
             self.draw()
@@ -454,7 +453,7 @@ else:
         secondchar = Van(*setti.van)        
             
 
-board = Board(screen_width,screen_height,  secondchar, firstchar, [Platform(screen_width, setti.platform_height, 0, screen_height - setti.platform_height), *plats], [], [])
+board = Board(screen_width,screen_height,  secondchar, firstchar, [Platform(2*screen_width, setti.platform_height, -500, screen_height - setti.platform_height), *plats], [], [])
 board.enemies()
 screen = pg.display.set_mode((screen_width,screen_height))
 

@@ -28,7 +28,7 @@ missleImage = get_image("../Assets/Pics/dropp.png")
 crushImage = pg.transform.scale(get_image("../Assets/Pics/splash.png"), (20, 20))
 numberofplatforms = 20
 platformimage = get_image("../Assets/Pics/platformimage.png")
-hp_size = [3,5]
+hp_size = [5,7]
 hp_space = 1
 hp_height = -10
 hp_image = pg.transform.scale(get_image("../Assets/Pics/hp.png"), np.array(hp_size))
@@ -40,7 +40,7 @@ missleheight = 15
 fallspeed = 0.4
 accframes = 20
 jumpvel = 12
-jumpcatch = 10
+jumpcatch = 15
 shootheight = 0.6
 misvel = 10
 misslecatch = 20
@@ -55,6 +55,10 @@ song_pump = '../Assets/Sounds/pump.wav'
 song_sweetdreams = '../Assets/Sounds/sweetdreams.wav'
 song_duhast = '../Assets/Sounds/duhast.wav'
 song_intheend = '../Assets/Sounds/intheend.wav'
+sound_billylose = '../Assets/Sounds/billylose.wav'
+platform_height= 25
+width_correction = 0
+height_correction = 200
 #VAN
 vansize = [60, 120]
 vanImage = pg.transform.scale(get_image("../Assets/Pics/van.png"), (vansize[0], vansize[1]))
@@ -63,13 +67,11 @@ van = [vansize[0], vansize[1], 500, 720, vanImage, 1, 3, 600, 15, 0]
 shootwidth = 2
 showerwidth = 100
 showerheight = 500
-showervel = 6
+showervel = 10
 shotguncd = 2000
 showercd = 3000
 showersize = 1
-platform_height= 25
-width_correction = 0
-height_correction = 200
+
 
 
 
