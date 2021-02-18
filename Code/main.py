@@ -90,7 +90,7 @@ class Board:
         pg.display.set_caption(setti.title)
         bg = pg.transform.scale(setti.get_image("../Assets/Pics/bg2.png").convert_alpha(), (self.width, self.height))
         while self.running:
-            pg.time.delay(6)
+            pg.time.delay(1)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     self.running = False
