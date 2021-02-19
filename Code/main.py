@@ -416,7 +416,7 @@ class Mark(Character):
                 self.board.missles.append(Missle(setti.misslewidth * setti.fatshotfactor , setti.missleheight * setti.fatshotfactor, self.posx + self.width, 
                 self.posy + self.height * setti.shootheight, setti.fatrightmissleImage, setti.misvel + self.velx, self.vely*setti.spreadfactor, self.dmg, setti.splashtime, pg.transform.scale(setti.fatcrushImage, (setti.misslewidth*setti.fatshotfactor, setti.missleheight*setti.fatshotfactor)), self.board))
             else:
-                self.board.missles.append(Missle(setti.misslewidth * setti.fatshotfactor , setti.missleheight * setti.fatshotfactor, self.posx - self.width*setti.fatshotfactor, 
+                self.board.missles.append(Missle(setti.misslewidth * setti.fatshotfactor , setti.missleheight * setti.fatshotfactor, self.posx - setti.fatshotwidth, 
                 self.posy + self.height * setti.shootheight, setti.fatleftmissleImage, -setti.misvel + self.velx, self.vely*setti.spreadfactor, self.dmg, setti.splashtime, pg.transform.scale(setti.fatcrushImage, (setti.misslewidth*setti.fatshotfactor, setti.missleheight*setti.fatshotfactor)), self.board))
 
 
@@ -476,7 +476,7 @@ for i in range(setti.numberofplatforms):
     plats.append(Platform(plat_width, setti.platform_height, platform_x, platform_y))
         
     
-    firstchar = Billy(*setti.billy)
+    firstchar = Mark(*setti.mark)
     secondchar = Piro(*setti.piro)
         
 

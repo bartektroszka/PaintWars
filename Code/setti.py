@@ -72,9 +72,10 @@ showersize = 1
 
 #MARK
 fatshotfactor = 4
+fatshotwidth = misslewidth * fatshotfactor
 fatrightmissleImage = pg.transform.scale(pg.transform.rotate(missleImage, 90), (misslewidth * fatshotfactor, missleheight * fatshotfactor))
 fatleftmissleImage = pg.transform.scale(pg.transform.rotate(missleImage, 270), (misslewidth * fatshotfactor, missleheight * fatshotfactor))
-marksize = [80, 120]
+marksize = [140, 120]
 markImage = pg.transform.scale(get_image("../Assets/Pics/mark.png"), (marksize[0], marksize[1]))
 #width, height, posx, posy, image, dmg, movespeed, shootpause, hp, 0
 mark = [marksize[0], marksize[1], 600, 400, markImage, 1, 2, 1000, 23, 0]
@@ -105,7 +106,7 @@ maxcharmedframes = 140
 
 #PIRO
 
-pirosize = [60, 120]
+pirosize = [110, 120]
 piroImage = pg.transform.scale(get_image("../Assets/Pics/piro.png"), (pirosize[0], pirosize[1]))
 #width, height, posx, posy, images, dmg, movespeed, shootpause, hp, 0
 piro = [pirosize[0], pirosize[1], 600, 720, piroImage, 1, 5, 1000, 8, 0]
