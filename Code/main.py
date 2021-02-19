@@ -5,13 +5,14 @@ from pygame.locals import *
 import threading
 import sys
 from time import sleep
-from math import cos, pi
+from math import cos, pi, ceil
+from itertools import cycle
 
 
 
 class Board:
     running = True
-    def __init__(self, width, height, boy, boy2, platforms, missles, charms):
+    def __init__(self, width, height, boy, boy2, platforms, missles, charms, objects, flames):
         self.width = width
         self.height = height
         self.boy = boy
@@ -23,6 +24,8 @@ class Board:
         else:
             self.mark = None
         self.platforms = platforms
+        self.objects = objects
+        self.flames = flames
         self.missles = missles
         self.charms= charms
         self.shakeon = False
@@ -48,8 +51,10 @@ class Board:
             x.draw()
         for x in self.charms:
             x.draw()
-
-   
+        for x in self.objects:
+            x.draw()
+        for x in self.flames:
+            x.draw()
     def enemies(self):
         self.boy.enemy = self.boy2
         self.boy2.enemy = self.boy
@@ -90,7 +95,7 @@ class Board:
         pg.display.set_caption(setti.title)
         bg = pg.transform.scale(setti.get_image("../Assets/Pics/bg2.png").convert_alpha(), (self.width, self.height))
         while self.running:
-            pg.time.delay(1)
+            pg.time.delay(6)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     self.running = False
@@ -113,6 +118,8 @@ class Board:
                 break
             for x in self.charms:
                 x.move()
+            for flame in self.flames:
+                flame.update()
             next(ct)
             
             screen.fill([255, 255, 255])
@@ -127,12 +134,16 @@ class Object:
         self.height = height
         self.posx = posx
         self.posy = posy
-        self.image = pg.transform.scale(image, (self.width, self.height))
+        self.image = pg.transform.scale(image, (self.width, self.height)).convert_alpha()
         self.board = board
 
     def draw(self):
         screen.blit(self.image, (self.posx, self.posy))
 
+    def checkhitcond(self, x):
+        if (self.posx + self.width > x.posx) and (self.posx  < x.posx + x.width) and (self.posy + self.height > x.posy) and (self.posy < x.posy + x.height):
+            return True
+        return False
 
 class Platform(Object):
     def __init__(self, width, height, posx, posy):
@@ -146,7 +157,7 @@ class Charm(Object):
     def __init__(self, width, height, posx, posy, charmimage, velx, crushimage, owner, board=None):
         super().__init__(width, height, posx, posy, charmimage, board)
         self.velx = velx
-        self.crushimage = crushimage
+        self.crushimage = crushimage.convert_alpha()
         self.crushed = False
         self.crushtime = 0
         self.owner = owner
@@ -167,10 +178,32 @@ class Charm(Object):
             self.owner.enemy.stunned = True
             self.owner.enemy.charmed = True
 
-    def checkhitcond(self, x):
-        if (self.posx + self.width > x.posx) and (self.posx  < x.posx + x.width) and (self.posy + self.height > x.posy) and (self.posy < x.posy + x.height):
-            return True
-        return False
+class Flame(Object):
+    def __init__(self, width, height, posx, posy, images, owner, board=None):
+        super().__init__(width, height, posx, posy, setti.fire_images[0].convert_alpha(), board)
+        self.owner = owner
+        self.last_burn = pg.time.get_ticks()
+        self.images_cycle = cycle(images)
+        self.image = next(self.images_cycle).convert_alpha()
+        self.last_image_change_time = pg.time.get_ticks()
+
+    def update(self):
+        if self.checkhitcond(self.owner.enemy):
+            curr_time = pg.time.get_ticks()
+            if(curr_time-self.last_burn > setti.fire_dmg_cd):
+                self.owner.enemy.hp -= setti.fire_damage
+                self.last_burn = curr_time
+    
+    def draw(self):
+        if pg.time.get_ticks() - self.last_image_change_time >= setti.fire_image_change_cd:
+            self.last_image_change_time = pg.time.get_ticks()
+            self.image = next(self.images_cycle).convert_alpha()
+        screen.blit(self.image, (self.posx, self.posy))
+
+            
+
+
+
 
 
 class Missle(Object):
@@ -180,7 +213,7 @@ class Missle(Object):
         self.vely = vely
         self.dmg = dmg
         self.splashtime = splashtime
-        self.crushimage = crushimage
+        self.crushimage = crushimage.convert_alpha()
         self.crushed = False
         self.crushtime = 0
         
@@ -205,11 +238,6 @@ class Missle(Object):
                 self.vely = 0
                 self.image = self.crushimage
        
-    def checkhitcond(self, x):
-        if (self.posx + self.width > x.posx) and (self.posx  < x.posx + x.width) and (self.posy + self.height > x.posy) and (self.posy < x.posy + x.height):
-            return True
-        return False
-
 
 
 
@@ -282,9 +310,8 @@ class Character(Object):
                 self.charm()
             elif self.__class__.__name__ == 'Van':
                 self.shower()
-            elif self.__class__.__name__ == 'Mark':
-                #self.fatshot('left')
-                pass
+            elif self.__class__.__name__ == 'Piro':
+                self.fire()
         if p_left:
             self.velx -= self.movespeed/setti.accframes
         elif self.velx < 0:
@@ -335,7 +362,7 @@ class Character(Object):
 
 
         screen.blit(self.image, (self.posx, self.posy + self.blitfac))
-        draw_hp(self.posx, self.posy, self.hp)
+        draw_hp(self.posx, self.posy, ceil(self.hp))
         
 
 
@@ -415,10 +442,21 @@ class Billy(Character):
                 self.board.missles.append(Missle(setti.misslewidth, setti.missleheight, self.posx + setti.safeshot, 
                 self.posy + self.height * setti.shootheight, setti.leftmissleImage, -setti.misvel + self.velx, self.vely*setti.spreadfactor, self.dmg,  setti.splashtime, setti.crushImage, self.board))
 
+class Piro(Character):
+    def __init__(self, width, height, posx, posy, image, dmg, movespeed, shootpause, hp, enemy, board=None):
+        super().__init__(width, height, posx, posy, image, dmg, movespeed, shootpause, hp, enemy, board)
+        self.last_fire = 0
+
+    def fire(self):#self, width, height, posx, posy, images, owner, board=None)
+        curr_time = pg.time.get_ticks()
+        if (curr_time-self.last_fire > setti.fire_cd):
+            self.board.flames.append(Flame(setti.fire_size[0], setti.fire_size[1], self.enemy.posx, self.enemy.posy, setti.fire_images, self, self.board))
+            self.last_fire = curr_time
     
 pg.init()
-info = pg.display.Info() # You have to call this before pygame.display.set_mode()
+info = pg.display.Info() 
 screen_width,screen_height = info.current_w - setti.width_correction,info.current_h - setti.height_correction
+screen = pg.display.set_mode((screen_width,screen_height))
 plats = []
 #generate platforms randomly
 for i in range(setti.numberofplatforms):
@@ -436,26 +474,14 @@ for i in range(setti.numberofplatforms):
 
 
     plats.append(Platform(plat_width, setti.platform_height, platform_x, platform_y))
+        
+    
+    firstchar = Billy(*setti.billy)
+    secondchar = Piro(*setti.piro)
+        
 
-if "Mark" in characters.characters:
-    secondchar = Mark(*setti.mark)
-    for x in characters.characters:
-        if x == "Billy":
-            firstchar = Billy(*setti.billy)
-        elif x == "Van":
-            firstchar = Van(*setti.van)
-else:
-    if characters.characters[0] == "Van":
-        firstchar = Van(*setti.van)
-        secondchar = Billy(*setti.billy)
-    else:
-        firstchar = Billy(*setti.billy)
-        secondchar = Van(*setti.van)        
-            
-
-board = Board(screen_width,screen_height,  secondchar, firstchar, [Platform(2*screen_width, setti.platform_height, -500, screen_height - setti.platform_height), *plats], [], [])
+board = Board(screen_width,screen_height,  secondchar, firstchar, [Platform(2*screen_width, setti.platform_height, -500, screen_height - setti.platform_height), *plats], [], [], [], [])
 board.enemies()
-screen = pg.display.set_mode((screen_width,screen_height))
 
 
 board.run()

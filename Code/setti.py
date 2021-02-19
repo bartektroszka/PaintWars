@@ -15,11 +15,6 @@ def get_image(path):
                 _image_library[path] = image
         return image
 
-#######################################################
-#CHARACTERS FIGHTING!: (pick "billy", "Van" or "Mark")#
-characters =['Mark', 'billy']                         #
-#######################################################
-
 
 
 #Game options
@@ -96,7 +91,7 @@ maxstunnedframes = 140
 billysize = [60, 120]
 billyImage = pg.transform.scale(get_image("../Assets/Pics/billy.png"), (billysize[0], billysize[1]))
 #width, height, posx, posy, image, dmg, movespeed, shootpause, hp, 0
-billy = [billysize[0], billysize[1], 600, 720, billyImage, 1, 5, 500, 15, 0]
+billy = [billysize[0], billysize[1], 600, 720, billyImage, 1, 5, 1000, 15, 0]
 charmwidth = 20
 charmheight = 20
 charmimage = pg.transform.scale(get_image("../Assets/Pics/charm.png"), (charmwidth, charmheight))
@@ -106,3 +101,17 @@ charmedvel = 3
 charmvelx = 6
 charmcd = 3500
 maxcharmedframes = 140
+
+
+#PIRO
+
+pirosize = [60, 120]
+piroImage = pg.transform.scale(get_image("../Assets/Pics/piro.png"), (pirosize[0], pirosize[1]))
+#width, height, posx, posy, images, dmg, movespeed, shootpause, hp, 0
+piro = [pirosize[0], pirosize[1], 600, 720, piroImage, 1, 5, 1000, 8, 0]
+fire_size=[80,120]
+fire_images = [pg.transform.scale(get_image("../Assets/Pics/fire/1.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/2.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/3.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/4.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/5.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/6.png"), (fire_size[0], fire_size[1]))]
+fire_image_change_cd = 100
+fire_dmg_cd = 500
+fire_cd = 1000
+fire_damage = 0.5
