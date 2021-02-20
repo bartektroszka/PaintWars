@@ -1,5 +1,5 @@
 from __future__ import print_function
-import pygame as pg, random, setti, characters
+import pygame as pg, random, setti
 import os
 from pygame.locals import *
 import threading
@@ -142,6 +142,7 @@ class Object:
 
     def checkhitcond(self, x):
         if (self.posx + self.width > x.posx) and (self.posx  < x.posx + x.width) and (self.posy + self.height > x.posy) and (self.posy < x.posy + x.height):
+            print(self.posx, self.width, x.posx, x.width)
             return True
         return False
 
@@ -476,7 +477,7 @@ for i in range(setti.numberofplatforms):
     plats.append(Platform(plat_width, setti.platform_height, platform_x, platform_y))
         
     
-    firstchar = Billy(*setti.billy)
+    firstchar = Mark(*setti.mark)
     secondchar = Piro(*setti.piro)
         
 
