@@ -111,7 +111,7 @@ piroImage = pg.transform.scale(get_image("../Assets/Pics/piro.png"), (pirosize[0
 #width, height, posx, posy, images, dmg, movespeed, shootpause, hp, 0
 size_factor = 2 #real width can be as big as picture width ;/
 piro = [pirosize[0], pirosize[1], 600, 720, piroImage, 1, 5, 1000, 8, 0]
-fire_size=[60,120]
+fire_size=[40,100]
 fire_images = [pg.transform.scale(get_image("../Assets/Pics/fire/1.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/2.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/3.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/4.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/5.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/6.png"), (fire_size[0], fire_size[1]))]
 fire_image_change_cd = 70
 fire_dmg_cd = 500

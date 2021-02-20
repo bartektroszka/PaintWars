@@ -451,7 +451,7 @@ class Piro(Character):
     def fire(self):#self, width, height, posx, posy, images, owner, board=None)
         curr_time = pg.time.get_ticks()
         if (curr_time-self.last_fire > setti.fire_cd):
-            self.board.flames.append(Flame(setti.fire_size[0], setti.fire_size[1], self.enemy.posx, self.enemy.posy, setti.fire_images, self, self.board))
+            self.board.flames.append(Flame(setti.fire_size[0], setti.fire_size[1], self.enemy.posx+ (self.enemy.width/2 - setti.fire_size[0]/2), self.enemy.posy+ (self.enemy.height - setti.fire_size[1]), setti.fire_images, self, self.board))
             self.last_fire = curr_time
     
 pg.init()
