@@ -142,7 +142,6 @@ class Object:
 
     def checkhitcond(self, x):
         if (self.posx + self.width > x.posx) and (self.posx  < x.posx + x.width) and (self.posy + self.height > x.posy) and (self.posy < x.posy + x.height):
-            print(self.posx, self.width, x.posx, x.width)
             return True
         return False
 
