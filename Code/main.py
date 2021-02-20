@@ -476,7 +476,7 @@ for i in range(setti.numberofplatforms):
     plats.append(Platform(plat_width, setti.platform_height, platform_x, platform_y))
         
     
-    firstchar = Mark(*setti.mark)
+    firstchar = Billy(*setti.billy)
     secondchar = Piro(*setti.piro)
         
 

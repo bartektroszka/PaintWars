@@ -89,7 +89,7 @@ stunnedbonus = 2
 maxstunnedframes = 140
 
 #billy
-billysize = [60, 120]
+billysize = [100, 120]
 billyImage = pg.transform.scale(get_image("../Assets/Pics/billy.png"), (billysize[0], billysize[1]))
 #width, height, posx, posy, image, dmg, movespeed, shootpause, hp, 0
 billy = [billysize[0], billysize[1], 600, 720, billyImage, 1, 5, 1000, 15, 0]
@@ -106,13 +106,13 @@ maxcharmedframes = 140
 
 #PIRO
 
-pirosize = [110, 120]
+pirosize = [140, 100]
 piroImage = pg.transform.scale(get_image("../Assets/Pics/piro.png"), (pirosize[0], pirosize[1]))
 #width, height, posx, posy, images, dmg, movespeed, shootpause, hp, 0
 piro = [pirosize[0], pirosize[1], 600, 720, piroImage, 1, 5, 1000, 8, 0]
 fire_size=[80,120]
 fire_images = [pg.transform.scale(get_image("../Assets/Pics/fire/1.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/2.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/3.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/4.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/5.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/6.png"), (fire_size[0], fire_size[1]))]
-fire_image_change_cd = 100
+fire_image_change_cd = 70
 fire_dmg_cd = 500
 fire_cd = 1000
 fire_damage = 0.5
