@@ -101,7 +101,7 @@ class Board:
                     self.running = False
             keys = pg.key.get_pressed()
             self.boy.update(keys[pg.K_w], keys[pg.K_a], keys[pg.K_d], keys[pg.K_f], keys[pg.K_g], keys[pg.K_h])
-            self.boy2.update(keys[pg.K_UP], keys[pg.K_LEFT], keys[pg.K_RIGHT], keys[pg.K_KP_DIVIDE], keys[pg.K_KP_MULTIPLY], keys[pg.K_KP_MINUS])
+            self.boy2.update(keys[pg.K_UP], keys[pg.K_LEFT], keys[pg.K_RIGHT], keys[pg.K_b], keys[pg.K_n], keys[pg.K_m])
             for x in self.missles:
                 x.move()
             if self.boy.hp <= 0:
@@ -135,6 +135,8 @@ class Object:
         self.posx = posx
         self.posy = posy
         self.image = pg.transform.scale(image, (self.width, self.height)).convert_alpha()
+        self.rightImage = self.image
+        self.leftImage = pg.transform.flip(self.image, True, False)
         self.board = board
 
     def draw(self):
@@ -242,7 +244,7 @@ class Missle(Object):
 
 
 class Character(Object):
-    def __init__(self, width, height, posx, posy, image, dmg, movespeed, shootpause, hp, enemy, board=None):
+    def __init__(self, width, height, posx, posy, image, dmg, movespeed, shootpause, hp, jumpvel, enemy, board=None):
         super().__init__(width, height, posx, posy, image, board)
         self.velx = 0
         self.vely = 0
@@ -251,6 +253,7 @@ class Character(Object):
         self.movespeed = movespeed
         self.shootpause = shootpause
         self.hp = hp
+        self.jumpvel = jumpvel
         self.enemy = enemy
         self.lastshot = 0
         self.stunned = False
@@ -259,9 +262,13 @@ class Character(Object):
         self.charmedframes = 0
         self.blitfac = 0
 
+
     def update(self, p_up, p_left, p_right, p_sleft, p_sright, superab):
         if self.posy > self.board.height:
             self.posy = self.board.height - self.height
+            self.vely = 0
+        if self.posy < 0:
+            self.posy = 0
             self.vely = 0
         self.prevvely = self.vely
         if self.stunned:
@@ -294,6 +301,8 @@ class Character(Object):
         if p_sleft:
             if self.__class__.__name__ == 'Billy':
                 self.shoot('left')
+            elif self.__class__.__name__ == 'Billy_motor':
+                self.shoot()
             elif self.__class__.__name__ == 'Van':
                 self.shotgun('left')
             elif self.__class__.__name__ == 'Mark':
@@ -314,8 +323,11 @@ class Character(Object):
                 self.fire()
         if p_left:
             self.velx -= self.movespeed/setti.accframes
+            self.image = self.leftImage
+
         elif self.velx < 0:
             self.velx += self.movespeed/setti.accframes
+            self.image = self.rightImage
         if p_right:
             self.velx += self.movespeed/setti.accframes
         elif self.velx>0:
@@ -334,7 +346,7 @@ class Character(Object):
         else:
             self.vely += setti.fallspeed
         if self.stands() and self.vely == 0 and p_up:
-            self.vely -= setti.jumpvel
+            self.vely -= self.jumpvel
         if self.charmed:
             if self.enemy.posx > self.posx:
                 self.velx = setti.charmedvel
@@ -442,6 +454,18 @@ class Billy(Character):
                 self.board.missles.append(Missle(setti.misslewidth, setti.missleheight, self.posx + setti.safeshot, 
                 self.posy + self.height * setti.shootheight, setti.leftmissleImage, -setti.misvel + self.velx, self.vely*setti.spreadfactor, self.dmg,  setti.splashtime, setti.crushImage, self.board))
 
+class Billy_motor(Character):
+    def __init__(self, width, height, posx, posy, image, dmg, movespeed, shootpause, hp, misslevel, enemy, board=None):
+        super().__init__(width, height, posx, posy, image, dmg, movespeed, shootpause, hp, enemy, board)
+        self.misslevel = misslevel
+
+    def shoot(self):
+        if (pg.time.get_ticks() - self.lastshot) > self.shootpause:
+            self.lastshot = pg.time.get_ticks()
+            self.board.missles.append(Missle(setti.missleheight, setti.misslewidth, self.posx + self.width/2, 
+            self.posy - self.height, setti.topmissleImage, self.velx, -self.misslevel * setti.spreadfactor, self.dmg, setti.splashtime, setti.crushImage, self.board))
+            
+
 class Piro(Character):
     def __init__(self, width, height, posx, posy, image, dmg, movespeed, shootpause, hp, enemy, board=None):
         super().__init__(width, height, posx, posy, image, dmg, movespeed, shootpause, hp, enemy, board)
@@ -459,25 +483,26 @@ screen_width,screen_height = info.current_w - setti.width_correction,info.curren
 screen = pg.display.set_mode((screen_width,screen_height))
 plats = []
 #generate platforms randomly
-for i in range(setti.numberofplatforms):
-    stopper = True
-    platform_x, platform_y = 0, 0
-    plat_width = random.choice(setti.platform_widths)
-    while stopper:
-        platform_x = random.randint(0, screen_width)
-        platform_y = random.randint(0, screen_height)
-        found = True
-        for platform in plats:
-            if abs(platform.posx - platform_x) < setti.platform_dist[0] and abs(platform.posy - platform_y) < setti.platform_dist[1] or platform_x + plat_width > screen_width:
-                found = False
-        stopper = not found
+def draw_platforms():
+    for i in range(setti.numberofplatforms):
+        stopper = True
+        platform_x, platform_y = 0, 0
+        plat_width = random.choice(setti.platform_widths)
+        while stopper:
+            platform_x = random.randint(0, screen_width)
+            platform_y = random.randint(0 + setti.platform_height_correction, screen_height)
+            found = True
+            for platform in plats:
+                if abs(platform.posx - platform_x) < setti.platform_dist[0] and abs(platform.posy - platform_y) < setti.platform_dist[1] or platform_x + plat_width > screen_width:
+                    found = False
+            stopper = not found
 
-
-    plats.append(Platform(plat_width, setti.platform_height, platform_x, platform_y))
+        plats.append(Platform(plat_width, setti.platform_height, platform_x, platform_y))
         
-    
-    firstchar = Mark(*setti.mark)
-    secondchar = Piro(*setti.piro)
+draw_platforms()
+firstchar = Mark(*setti.mark)
+secondchar = Billy_motor(*setti.billy_motor)
+
         
 
 board = Board(screen_width,screen_height,  secondchar, firstchar, [Platform(2*screen_width, setti.platform_height, -500, screen_height - setti.platform_height), *plats], [], [], [], [])

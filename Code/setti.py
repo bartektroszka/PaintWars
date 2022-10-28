@@ -34,7 +34,7 @@ misslewidth = 30
 missleheight = 15
 fallspeed = 0.4
 accframes = 20
-jumpvel = 12
+jumpvel = 50
 jumpcatch = 15
 shootheight = 0.6
 misvel = 10
@@ -43,6 +43,7 @@ colors = {"blue":(0, 0, 255)}
 safeshot = -40
 spreadfactor = 0.3
 rightmissleImage = pg.transform.scale(pg.transform.rotate(missleImage, 90), (misslewidth, missleheight))
+topmissleImage = pg.transform.scale(pg.transform.rotate(missleImage, 180), (missleheight, misslewidth))
 leftmissleImage = pg.transform.scale(pg.transform.rotate(missleImage, 270), (misslewidth, missleheight))
 platform_dist = [550, 40]
 platform_widths = [300, 250, 500, 450]
@@ -54,11 +55,13 @@ sound_billylose = '../Assets/Sounds/billylose.wav'
 platform_height= 25
 width_correction = 0
 height_correction = 200
+platform_height_correction = 200
+
 #VAN
-vansize = [60, 120]
+vansize = [80, 120]
 vanImage = pg.transform.scale(get_image("../Assets/Pics/van.png"), (vansize[0], vansize[1]))
 #width, height, posx, posy, image, dmg, movespeed, shootpause, hp, 0
-van = [vansize[0], vansize[1], 500, 720, vanImage, 1, 3, 600, 15, 0]
+van = [vansize[0], vansize[1], 500, 200, vanImage, 1, 3, 600, 15, 12, 0]
 shootwidth = 2
 showerwidth = 100
 showerheight = 500
@@ -78,7 +81,7 @@ fatleftmissleImage = pg.transform.scale(pg.transform.rotate(missleImage, 270), (
 marksize = [140, 120]
 markImage = pg.transform.scale(get_image("../Assets/Pics/mark.png"), (marksize[0], marksize[1]))
 #width, height, posx, posy, image, dmg, movespeed, shootpause, hp, 0
-mark = [marksize[0], marksize[1], 600, 400, markImage, 1, 2, 1000, 23, 0]
+mark = [marksize[0], marksize[1], 600, 400, markImage, 1, 2, 1000, 23, 12, 0]
 tremorsteps = 16
 tremorpause = 120
 tremorjump = 5
@@ -92,7 +95,7 @@ maxstunnedframes = 140
 billysize = [100, 120]
 billyImage = pg.transform.scale(get_image("../Assets/Pics/billy.png"), (billysize[0], billysize[1]))
 #width, height, posx, posy, image, dmg, movespeed, shootpause, hp, 0
-billy = [billysize[0], billysize[1], 600, 720, billyImage, 1, 5, 1000, 15, 0]
+billy = [billysize[0], billysize[1], 600, 200, billyImage, 1, 5, 500, 15, 12, 0]
 charmwidth = 20
 charmheight = 20
 charmimage = pg.transform.scale(get_image("../Assets/Pics/charm.png"), (charmwidth, charmheight))
@@ -110,10 +113,20 @@ pirosize = [120, 100]
 piroImage = pg.transform.scale(get_image("../Assets/Pics/piro.png"), (pirosize[0], pirosize[1]))
 #width, height, posx, posy, images, dmg, movespeed, shootpause, hp, 0
 size_factor = 2 #real width can be as big as picture width ;/
-piro = [pirosize[0], pirosize[1], 600, 720, piroImage, 1, 5, 1000, 8, 0]
+piro = [pirosize[0], pirosize[1], 600, 720, piroImage, 1, 5, 1000, 8, 12, 0]
 fire_size=[40,100]
 fire_images = [pg.transform.scale(get_image("../Assets/Pics/fire/1.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/2.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/3.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/4.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/5.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/6.png"), (fire_size[0], fire_size[1]))]
 fire_image_change_cd = 70
 fire_dmg_cd = 500
 fire_cd = 1000
 fire_damage = 0.5
+
+#Billy_motor
+billy_motorsize = [130, 80]
+billy_motorImage = pg.transform.scale(get_image("../Assets/Pics/billy_motor.png"), (billy_motorsize[0], billy_motorsize[1]))
+
+#width, height, posx, posy, images, dmg, movespeed, shootpause, hp, 0
+size_factor = 2 #real width can be as big as picture width ;/
+billy_motor_misslevel=19
+billy_jumpvel = 7
+billy_motor = [billy_motorsize[0], billy_motorsize[1], 600, 500, billy_motorImage, 1, 7, 1000, 8, billy_motor_misslevel, billy_jumpvel, 0]
