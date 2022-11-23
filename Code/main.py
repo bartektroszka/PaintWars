@@ -10,18 +10,13 @@ from itertools import cycle
 
 
 
+
 class Board:
     running = True
-    def __init__(self, width, height, boy, boy2, platforms, missles, charms, objects, flames):
+    def __init__(self, width, height, platforms, missles, charms, objects, flames, boys=[]):
         self.width = width
         self.height = height
-        self.boy = boy
-        self.boy2 = boy2
-        if type(boy) == Mark:
-            self.mark = boy
-        elif type(boy2) == Mark:
-            self.mark = boy2
-        else:
+        if not hasattr(self, 'mark'):
             self.mark = None
         self.platforms = platforms
         self.objects = objects
@@ -38,15 +33,14 @@ class Board:
             charm.board = self
         for platform in self.platforms:
             platform.board = self
-        self.boy.board = self
-        self.boy2.board = self
+        self.boys=boys
      
     
     def draw(self):
         for x in self.platforms:
             x.draw()
-        self.boy.draw()
-        self.boy2.draw()
+        for boy in self.boys:
+            boy.draw()
         for x in self.missles:
             x.draw()
         for x in self.charms:
@@ -55,9 +49,6 @@ class Board:
             x.draw()
         for x in self.flames:
             x.draw()
-    def enemies(self):
-        self.boy.enemy = self.boy2
-        self.boy2.enemy = self.boy
 
     def tremor(self, strength, step):
         dy = strength*cos(step/setti.tremorsteps*2*pi)
@@ -88,33 +79,31 @@ class Board:
 
     def run(self):
         ct = self.checktremor()
-        songs = [pg.mixer.Sound(setti.song_pump), pg.mixer.Sound(setti.song_sweetdreams), pg.mixer.Sound(setti.song_duhast), pg.mixer.Sound(setti.song_intheend)]
-        soundObj = random.choice(songs)
+        soundObj = random.choice(list(map(lambda x: pg.mixer.Sound(x), setti.songs)))
         soundObj.play()
         myfont = pg.font.SysFont('monospace', 100)
         pg.display.set_caption(setti.title)
-        bg = pg.transform.scale(setti.get_image("../Assets/Pics/bg2.png").convert_alpha(), (self.width, self.height))
+        backgroundPic = random.choice(setti.backgrounds)
+        bg = pg.transform.scale(setti.get_image(backgroundPic).convert_alpha(), (self.width, self.height))
         while self.running:
             pg.time.delay(6)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     self.running = False
             keys = pg.key.get_pressed()
-            self.boy.update(keys[pg.K_w], keys[pg.K_a], keys[pg.K_d], keys[pg.K_f], keys[pg.K_g], keys[pg.K_h])
-            self.boy2.update(keys[pg.K_UP], keys[pg.K_LEFT], keys[pg.K_RIGHT], keys[pg.K_b], keys[pg.K_n], keys[pg.K_m])
+            if len(self.boys) >=2:
+                self.boys[0].update(keys[pg.K_w], keys[pg.K_a], keys[pg.K_d], keys[pg.K_f], keys[pg.K_g], keys[pg.K_h])
+                self.boys[1].update(keys[pg.K_UP], keys[pg.K_LEFT], keys[pg.K_RIGHT], keys[pg.K_b], keys[pg.K_n], keys[pg.K_m])
             for x in self.missles:
                 x.move()
-            if self.boy.hp <= 0:
-                screen.blit(myfont.render(self.boy.__class__.__name__ + " lost", 1, (255, 100, 255)), (self.width/3, self.height/2))
-                self.boy = 0
-                pg.display.flip()
-                sleep(3)
-                break
-            if self.boy2.hp <= 0:
-                screen.blit(myfont.render(self.boy2.__class__.__name__ + " lost", 1, (255, 100, 255)), (self.width/3, self.height/2))
-                self.boy2 = 0
-                pg.display.flip()
-                sleep(3)
+            end = False
+            for boy in self.boys:
+                if boy.hp <= 0:
+                    end = True
+                    screen.blit(myfont.render(boy.__class__.__name__ + " lost", 1, (255, 100, 255)), (self.width/3, self.height/2))
+                    pg.display.flip()
+                    sleep(3)
+            if end:
                 break
             for x in self.charms:
                 x.move()
@@ -229,7 +218,7 @@ class Missle(Object):
         self.posx += self.velx 
         self.posy += self.vely
         
-        for x in [self.board.boy, self.board.boy2]:
+        for x in self.board.boys:
             if (not self.crushed) and (self.checkhitcond(x)):
                 self.crushed = True
                 if x.stunned and self.width > setti.fatshotfactor * setti.misslewidth * 0.9:
@@ -244,24 +233,23 @@ class Missle(Object):
 
 
 class Character(Object):
-    def __init__(self, width, height, posx, posy, image, dmg, movespeed, shootpause, hp, jumpvel, enemy, board=None):
+    def __init__(self, width, height, posx, posy, image, dmg, movespeed, accframes, shootpause, hp, jumpvel, board=None):
         super().__init__(width, height, posx, posy, image, board)
         self.velx = 0
         self.vely = 0
         self.prevvely = 0
         self.dmg = dmg
         self.movespeed = movespeed
+        self.accframes = accframes
         self.shootpause = shootpause
         self.hp = hp
         self.jumpvel = jumpvel
-        self.enemy = enemy
         self.lastshot = 0
         self.stunned = False
         self.charmed = False
         self.stunnedframes = 0
         self.charmedframes = 0
         self.blitfac = 0
-
 
     def update(self, p_up, p_left, p_right, p_sleft, p_sright, superab):
         if self.posy > self.board.height:
@@ -322,22 +310,17 @@ class Character(Object):
             elif self.__class__.__name__ == 'Piro':
                 self.fire()
         if p_left:
-            self.velx -= self.movespeed/setti.accframes
+            if self.velx > -self.movespeed:
+                self.velx -= self.movespeed/self.accframes
             self.image = self.leftImage
-
         elif self.velx < 0:
-            self.velx += self.movespeed/setti.accframes
-            self.image = self.rightImage
+            self.velx += self.movespeed/self.accframes
         if p_right:
-            self.velx += self.movespeed/setti.accframes
-        elif self.velx>0:
-            self.velx -= self.movespeed/setti.accframes
-        if abs(self.velx) < self.movespeed/setti.accframes:
-            self.velx = 0
-        if self.velx < -self.movespeed:
-            self.velx = -self.movespeed
-        if self.velx > self.movespeed:
-            self.velx = self.movespeed
+            if self.velx < self.movespeed:
+                self.velx += self.movespeed/self.accframes
+            self.image = self.rightImage
+        elif self.velx > 0:
+            self.velx -= self.movespeed/self.accframes
         if self.stands() and self.vely>0:
             self.posy = self.stands().posy - self.height
             self.vely = 0
@@ -354,7 +337,26 @@ class Character(Object):
                 self.velx = - setti.charmedvel
         if (self.posx + self.velx <= (self.board.width - self.width)) and (self.posx + self.velx >= 0):
             self.posx += self.velx
+        if(self.posx + self.velx > (self.board.width - self.width) and self.velx > 0):
+            self.velx = 0
+        if(self.posx + self.velx < 0 and self.velx < 0):
+            self.velx = 0
+        
         self.posy += self.vely
+        if(self.__class__.__name__ == 'Billy_motor'):
+            if(self.checkhitcond(self.enemy)):
+                curr_time = pg.time.get_ticks()
+                if (curr_time-self.last_hit > setti.billy_motor_hit_cd):
+                    self.last_hit = curr_time
+                    self.enemy.hp -= (abs(self.velx) * setti.billy_motor_hit_dmg_multiplier) // 1
+                    self.enemy.velx += setti.billy_motor_hit_velx*self.velx
+                    if self.enemy.vely > setti.billy_motor_hit_vely*self.vely - setti.billy_motor_static_hit_vely:
+                        self.enemy.vely += setti.billy_motor_hit_vely*self.vely - setti.billy_motor_static_hit_vely
+
+
+
+
+
 
     def stands(self):
         for x in self.board.platforms:
@@ -379,8 +381,8 @@ class Character(Object):
 
 
 class Van(Character):
-    def __init__(self, width, height, posx, posy, image, dmg, movespeed, shootpause, hp, enemy, board=None):
-        super().__init__(width, height, posx, posy, image, dmg, movespeed, shootpause, hp, enemy, board)
+    def __init__(self, width, height, posx, posy, image, dmg, movespeed, accframes, shootpause, hp, jumpvel, board=None):
+        super().__init__(width, height, posx, posy, image, dmg, movespeed, accframes, shootpause, hp, jumpvel, board)
         self.shotguncd = 0
         self.showercd = 0
 
@@ -416,8 +418,8 @@ class Van(Character):
 
     
 class Mark(Character):
-    def __init__(self, width, height, posx, posy, image, dmg, movespeed, shootpause, hp, enemy, board=None):
-        super().__init__(width, height, posx, posy, image, dmg, movespeed, shootpause, hp, enemy, board)
+    def __init__(self, width, height, posx, posy, image, dmg, movespeed, accframes, shootpause, hp, jumpvel, board=None):
+        super().__init__(width, height, posx, posy, image, dmg, movespeed, accframes, shootpause, hp, jumpvel, board)
         self.fatshotcd = 0
         self.tremorcd = 0
 
@@ -433,8 +435,8 @@ class Mark(Character):
 
 
 class Billy(Character):
-    def __init__(self, width, height, posx, posy, image, dmg, movespeed, shootpause, hp, enemy, board=None):
-        super().__init__(width, height, posx, posy, image, dmg, movespeed, shootpause, hp, enemy, board)
+    def __init__(self, width, height, posx, posy, image, dmg, movespeed, accframes, shootpause, hp, jumpvel, board=None):
+        super().__init__(width, height, posx, posy, image, dmg, movespeed, accframes, shootpause, hp, jumpvel, board)
         self.charmcd = 0
 
 
@@ -455,26 +457,29 @@ class Billy(Character):
                 self.posy + self.height * setti.shootheight, setti.leftmissleImage, -setti.misvel + self.velx, self.vely*setti.spreadfactor, self.dmg,  setti.splashtime, setti.crushImage, self.board))
 
 class Billy_motor(Character):
-    def __init__(self, width, height, posx, posy, image, dmg, movespeed, shootpause, hp, misslevel, enemy, board=None):
-        super().__init__(width, height, posx, posy, image, dmg, movespeed, shootpause, hp, enemy, board)
-        self.misslevel = misslevel
+    def __init__(self, width, height, posx, posy, image, dmg, movespeed, accframes, shootpause, hp, jumpvel, board=None):
+        super().__init__(width, height, posx, posy, image, dmg, movespeed, accframes, shootpause, hp, jumpvel, board)
+        self.last_hit = 0
+
 
     def shoot(self):
         if (pg.time.get_ticks() - self.lastshot) > self.shootpause:
             self.lastshot = pg.time.get_ticks()
             self.board.missles.append(Missle(setti.missleheight, setti.misslewidth, self.posx + self.width/2, 
-            self.posy - self.height, setti.topmissleImage, self.velx, -self.misslevel * setti.spreadfactor, self.dmg, setti.splashtime, setti.crushImage, self.board))
+            self.posy - self.height, setti.topmissleImage, self.velx * setti.billy_mottor_missle_velx_spread_factor, -setti.billy_motor_misslevel, self.dmg, setti.splashtime, setti.crushImage, self.board))
+
+    
             
 
 class Piro(Character):
-    def __init__(self, width, height, posx, posy, image, dmg, movespeed, shootpause, hp, enemy, board=None):
-        super().__init__(width, height, posx, posy, image, dmg, movespeed, shootpause, hp, enemy, board)
+    def __init__(self, width, height, posx, posy, image, dmg, movespeed, accframes, shootpause, hp, jumpvel, board=None):
+        super().__init__(width, height, posx, posy, image, dmg, movespeed, accframes, shootpause, hp, jumpvel, board)
         self.last_fire = 0
 
     def fire(self):#self, width, height, posx, posy, images, owner, board=None)
         curr_time = pg.time.get_ticks()
         if (curr_time-self.last_fire > setti.fire_cd):
-            self.board.flames.append(Flame(setti.fire_size[0], setti.fire_size[1], self.enemy.posx+ (self.enemy.width/2 - setti.fire_size[0]/2), self.enemy.posy+ (self.enemy.height - setti.fire_size[1]), setti.fire_images, self, self.board))
+            self.board.flames.append(Flame(setti.fire_size[0], setti.fire_size[1], self.enemy.posx + (self.enemy.width/2 - setti.fire_size[0]/2), self.enemy.posy+ (self.enemy.height - setti.fire_size[1]), setti.fire_images, self, self.board))
             self.last_fire = curr_time
     
 pg.init()
@@ -500,16 +505,42 @@ def draw_platforms():
         plats.append(Platform(plat_width, setti.platform_height, platform_x, platform_y))
         
 draw_platforms()
-firstchar = Mark(*setti.mark)
-secondchar = Billy_motor(*setti.billy_motor)
 
-        
+board = Board(screen_width, screen_height, [Platform(2*screen_width, setti.platform_height, -500, screen_height - setti.platform_height), *plats], [], [], [], [], boys=[])
 
-board = Board(screen_width,screen_height,  secondchar, firstchar, [Platform(2*screen_width, setti.platform_height, -500, screen_height - setti.platform_height), *plats], [], [], [], [])
-board.enemies()
+
+
+def generate_boy(name):
+    if name == 'mark':
+        mark = Mark(*setti.mark, board)
+        board.mark = mark
+        return mark
+    elif name == 'van':
+        return Van(*setti.van, board)
+    elif name == 'billy':
+        return Billy(*setti.billy, board)
+    elif name == 'piro':
+        return Piro(*setti.piro, board)
+    elif name == 'billy_motor':
+        return Billy_motor(*setti.billy_motor, board)
+
+
+boy_names = ['piro', 'billy']  # HERE CHANGE CHARACTERS
+
+boy1 = generate_boy(boy_names[0])
+boy2 = generate_boy(boy_names[1])
+
+boy1.enemy = boy2
+boy2.enemy = boy1
+
+board.boys = [boy1, boy2]
+
 
 
 board.run()
+
+
+
 
 
 
