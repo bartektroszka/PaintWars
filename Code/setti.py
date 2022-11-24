@@ -17,18 +17,19 @@ def get_image(path):
 
 
 
+
 #Game options
 title = "Hot Men Cool Boys"
 missleImage = get_image("../Assets/Pics/dropp.png")
 crushImage = pg.transform.scale(get_image("../Assets/Pics/splash.png"), (20, 20))
-numberofplatforms = 20
+numberofplatforms = 40
 platformimage = get_image("../Assets/Pics/platformimage.png")
 hp_size = [5,7]
 hp_space = 1
 hp_height = -10
 hp_image = pg.transform.scale(get_image("../Assets/Pics/hp.png"), np.array(hp_size))
-width = 1700
-height = 1100
+width = 2400
+height = 1600
 splashtime = 200
 misslewidth = 30
 missleheight = 15
@@ -37,7 +38,7 @@ accframes = 20
 jumpvel = 50
 jumpcatch = 15
 shootheight = 0.6
-misvel = 10
+misvel = 13
 misslecatch = 20
 colors = {"blue":(0, 0, 255)}
 safeshot = -40
@@ -92,7 +93,7 @@ maxstunnedframes = 140
 billysize = [100, 120]
 billyImage = pg.transform.scale(get_image("../Assets/Pics/billy.png"), (billysize[0], billysize[1]))
 #width, height, posx, posy, image, dmg, movespeed, accframes shootpause, hp
-billy = [billysize[0], billysize[1], 600, 200, billyImage, 1, 10, 20, 500, 15, 12]
+billy = [billysize[0], billysize[1], 600, 200, billyImage, 1, 5, 20, 500, 15, 12]
 charmwidth = 20
 charmheight = 20
 charmimage = pg.transform.scale(get_image("../Assets/Pics/charm.png"), (charmwidth, charmheight))
@@ -107,10 +108,10 @@ maxcharmedframes = 140
 #PIRO
 
 pirosize = [120, 100]
-piroImage = pg.transform.scale(get_image("../Assets/Pics/piro.png"), (pirosize[0], pirosize[1]))
+piroImage = pg.transform.flip(pg.transform.scale(get_image("../Assets/Pics/piro.png"), (pirosize[0], pirosize[1])), True, False)
 #width, height, posx, posy, images, dmg, movespeed,accframes shootpause, hp
 size_factor = 2 #real width can be as big as picture width ;/
-piro = [pirosize[0], pirosize[1], 600, 720, piroImage, 1, 8, 20, 1000, 8, 12]
+piro = [pirosize[0], pirosize[1], 600, 720, piroImage, 1, 6, 20, 1000, 8, 12]
 fire_size=[40,100]
 fire_images = [pg.transform.scale(get_image("../Assets/Pics/fire/1.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/2.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/3.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/4.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/5.png"), (fire_size[0], fire_size[1])), pg.transform.scale(get_image("../Assets/Pics/fire/6.png"), (fire_size[0], fire_size[1]))]
 fire_image_change_cd = 70
@@ -132,5 +133,5 @@ billy_mottor_missle_velx_spread_factor = 0.3
 billy_motor_static_hit_vely = 5
 billy_motor_hit_cd = 2000
 #width, height, posx, posy, images, dmg, movespeed,accframes,  shootpause, hp, 0
-billy_motor = [billy_motorsize[0], billy_motorsize[1], 600, 500, billy_motorImage, 1, 16, 50, 1000, 8, billy_jumpvel]
+billy_motor = [billy_motorsize[0], billy_motorsize[1], 600, 500, billy_motorImage, 1, 16, 50, 300, 8, billy_jumpvel]
 billy_motor_hit_dmg_multiplier = 0.3

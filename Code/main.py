@@ -59,7 +59,7 @@ class Board:
         if step > setti.tremorsteps/4:
             if self.mark.enemy.stands():
                 self.mark.enemy.stunned = True
-                self.mark.enemy.vely -= setti.tremorjump
+                self.mark.enemy.vely -= screen_size_factor * setti.tremorjump
             markplatform = self.mark.stands()
             if markplatform:    
                 self.mark.posy = markplatform.posy - self.mark.height
@@ -77,7 +77,7 @@ class Board:
             else:
                 yield
 
-    def run(self):
+    def run(self, screen):
         ct = self.checktremor()
         soundObj = random.choice(list(map(lambda x: pg.mixer.Sound(x), setti.songs)))
         soundObj.play()
@@ -86,41 +86,47 @@ class Board:
         backgroundPic = random.choice(setti.backgrounds)
         bg = pg.transform.scale(setti.get_image(backgroundPic).convert_alpha(), (self.width, self.height))
         while self.running:
+
             pg.time.delay(6)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     self.running = False
+               
+
             keys = pg.key.get_pressed()
-            if len(self.boys) >=2:
-                self.boys[0].update(keys[pg.K_w], keys[pg.K_a], keys[pg.K_d], keys[pg.K_f], keys[pg.K_g], keys[pg.K_h])
-                self.boys[1].update(keys[pg.K_UP], keys[pg.K_LEFT], keys[pg.K_RIGHT], keys[pg.K_b], keys[pg.K_n], keys[pg.K_m])
-            for x in self.missles:
-                x.move()
-            end = False
-            for boy in self.boys:
-                if boy.hp <= 0:
-                    end = True
-                    screen.blit(myfont.render(boy.__class__.__name__ + " lost", 1, (255, 100, 255)), (self.width/3, self.height/2))
-                    pg.display.flip()
-                    sleep(3)
-            if end:
-                break
-            for x in self.charms:
-                x.move()
-            for flame in self.flames:
-                flame.update()
-            next(ct)
+            if keys[pg.K_ESCAPE]:
+                self.running = False
             
-            screen.fill([255, 255, 255])
-            screen.blit(bg, bg.get_rect())  
-            self.draw()
-            pg.display.flip()   
+            else:
+                if len(self.boys) >=2:
+                    self.boys[0].update(keys[pg.K_w], keys[pg.K_a], keys[pg.K_d], keys[pg.K_f], keys[pg.K_g], keys[pg.K_h])
+                    self.boys[1].update(keys[pg.K_UP], keys[pg.K_LEFT], keys[pg.K_RIGHT], keys[pg.K_b], keys[pg.K_n], keys[pg.K_m])
+                for x in self.missles:
+                    x.move()
+                end = False
+                for boy in self.boys:
+                    if boy.hp <= 0:
+                        end = True
+                        screen.blit(myfont.render(boy.__class__.__name__ + " lost", 1, (255, 100, 255)), (self.width/3, self.height/2))
+                        pg.display.flip()
+                        sleep(3)
+                if end:
+                    break
+                for x in self.charms:
+                    x.move()
+                for flame in self.flames:
+                    flame.update()
+                next(ct)
+                screen.fill([255, 255, 255])
+                screen.blit(bg, bg.get_rect())  
+                self.draw()
+                pg.display.flip()   
 
 
 class Object:
     def __init__(self, width, height, posx, posy, image, board=None):
-        self.width = width
-        self.height = height
+        self.width = screen_size_factor * width
+        self.height = screen_size_factor * height
         self.posx = posx
         self.posy = posy
         self.image = pg.transform.scale(image, (self.width, self.height)).convert_alpha()
@@ -147,7 +153,7 @@ class Platform(Object):
 class Charm(Object):
     def __init__(self, width, height, posx, posy, charmimage, velx, crushimage, owner, board=None):
         super().__init__(width, height, posx, posy, charmimage, board)
-        self.velx = velx
+        self.velx = screen_size_factor * velx
         self.crushimage = crushimage.convert_alpha()
         self.crushed = False
         self.crushtime = 0
@@ -200,8 +206,8 @@ class Flame(Object):
 class Missle(Object):
     def __init__(self, width, height, posx, posy, image, velx, vely, dmg, splashtime, crushimage, board=None):
         super().__init__(width, height, posx, posy, image, board)
-        self.velx = velx
-        self.vely = vely
+        self.velx = screen_size_factor * velx
+        self.vely = screen_size_factor * vely
         self.dmg = dmg
         self.splashtime = splashtime
         self.crushimage = crushimage.convert_alpha()
@@ -221,7 +227,7 @@ class Missle(Object):
         for x in self.board.boys:
             if (not self.crushed) and (self.checkhitcond(x)):
                 self.crushed = True
-                if x.stunned and self.width > setti.fatshotfactor * setti.misslewidth * 0.9:
+                if x.stunned and self.width > setti.fatshotfactor * self.width * 0.9:
                     x.hp -= setti.stunnedbonus
                 x.hp -= self.dmg
                 self.crushtime = pg.time.get_ticks()
@@ -239,11 +245,11 @@ class Character(Object):
         self.vely = 0
         self.prevvely = 0
         self.dmg = dmg
-        self.movespeed = movespeed
+        self.movespeed = screen_size_factor * movespeed
         self.accframes = accframes
         self.shootpause = shootpause
         self.hp = hp
-        self.jumpvel = jumpvel
+        self.jumpvel = screen_size_factor * jumpvel
         self.lastshot = 0
         self.stunned = False
         self.charmed = False
@@ -327,14 +333,14 @@ class Character(Object):
         elif self.stands() and self.vely==0:
             pass
         else:
-            self.vely += setti.fallspeed
+            self.vely += screen_size_factor * setti.fallspeed
         if self.stands() and self.vely == 0 and p_up:
             self.vely -= self.jumpvel
         if self.charmed:
             if self.enemy.posx > self.posx:
-                self.velx = setti.charmedvel
+                self.velx = screen_size_factor * setti.charmedvel
             else:
-                self.velx = - setti.charmedvel
+                self.velx = - screen_size_factor * setti.charmedvel
         if (self.posx + self.velx <= (self.board.width - self.width)) and (self.posx + self.velx >= 0):
             self.posx += self.velx
         if(self.posx + self.velx > (self.board.width - self.width) and self.velx > 0):
@@ -360,7 +366,7 @@ class Character(Object):
 
     def stands(self):
         for x in self.board.platforms:
-            if ((((self.posy + self.height) > x.posy - setti.jumpcatch) and ((self.posy + self.height) < x.posy + setti.jumpcatch)) 
+            if ((((self.posy + self.height) > x.posy - screen_size_factor * setti.jumpcatch) and ((self.posy + self.height) < x.posy + screen_size_factor * setti.jumpcatch)) 
             and (((self.posx + (self.width / 2)) > x.posx) and ((self.posx + (self.width / 2)) < (x.posx + x.width)))):
                 return x
         return False
@@ -391,30 +397,30 @@ class Van(Character):
             self.shotguncd = pg.time.get_ticks()
             if dir == "right":
                 self.board.missles.append(Missle(setti.misslewidth, setti.missleheight, self.posx + self.width, 
-                self.posy + self.height * setti.shootheight, setti.rightmissleImage, setti.misvel + self.velx, self.vely*setti.spreadfactor + setti.shootwidth, self.dmg,  setti.splashtime, setti.crushImage, self.board))
+                self.posy + self.height * setti.shootheight, setti.rightmissleImage, screen_size_factor * setti.misvel + self.velx, screen_size_factor * (self.vely*setti.spreadfactor + setti.shootwidth), self.dmg,  setti.splashtime, setti.crushImage, self.board))
                 self.board.missles.append(Missle(setti.misslewidth, setti.missleheight, self.posx + self.width, 
-                self.posy + self.height * setti.shootheight, setti.rightmissleImage, setti.misvel + self.velx, self.vely*setti.spreadfactor, self.dmg,  setti.splashtime, setti.crushImage, self.board))
+                self.posy + self.height * setti.shootheight, setti.rightmissleImage, screen_size_factor * setti.misvel + self.velx, screen_size_factor * (self.vely*setti.spreadfactor), self.dmg,  setti.splashtime, setti.crushImage, self.board))
                 self.board.missles.append(Missle(setti.misslewidth, setti.missleheight, self.posx + self.width, 
-                self.posy + self.height * setti.shootheight, setti.rightmissleImage, setti.misvel + self.velx, self.vely*setti.spreadfactor - setti.shootwidth, self.dmg,  setti.splashtime, setti.crushImage, self.board))
+                self.posy + self.height * setti.shootheight, setti.rightmissleImage, screen_size_factor * setti.misvel + self.velx, screen_size_factor * (self.vely*setti.spreadfactor - setti.shootwidth), self.dmg,  setti.splashtime, setti.crushImage, self.board))
 
             else:
                 self.board.missles.append(Missle(setti.misslewidth, setti.missleheight, self.posx + setti.safeshot, 
-                self.posy + self.height * setti.shootheight, setti.leftmissleImage, -setti.misvel + self.velx, self.vely*setti.spreadfactor + setti.shootwidth, self.dmg,  setti.splashtime, setti.crushImage, self.board))
+                self.posy + self.height * setti.shootheight, setti.leftmissleImage, screen_size_factor * -setti.misvel + self.velx, screen_size_factor *(self.vely*setti.spreadfactor + setti.shootwidth), self.dmg,  setti.splashtime, setti.crushImage, self.board))
                 self.board.missles.append(Missle(setti.misslewidth, setti.missleheight, self.posx + setti.safeshot, 
-                self.posy + self.height * setti.shootheight, setti.leftmissleImage, -setti.misvel + self.velx, self.vely*setti.spreadfactor, self.dmg,  setti.splashtime, setti.crushImage, self.board))
+                self.posy + self.height * setti.shootheight, setti.leftmissleImage, screen_size_factor *  -setti.misvel + self.velx, screen_size_factor * self.vely*setti.spreadfactor, self.dmg,  setti.splashtime, setti.crushImage, self.board))
                 self.board.missles.append(Missle(setti.misslewidth, setti.missleheight, self.posx + setti.safeshot, 
-                self.posy + self.height * setti.shootheight, setti.leftmissleImage, -setti.misvel + self.velx, self.vely*setti.spreadfactor - setti.shootwidth, self.dmg,  setti.splashtime, setti.crushImage, self.board))
+                self.posy + self.height * setti.shootheight, setti.leftmissleImage, screen_size_factor * -setti.misvel + self.velx, screen_size_factor * (self.vely*setti.spreadfactor - setti.shootwidth), self.dmg,  setti.splashtime, setti.crushImage, self.board))
 
 
     def shower(self):
         if(pg.time.get_ticks() - self.showercd > setti.showercd):
             self.showercd = pg.time.get_ticks()
             self.board.missles.append(Missle(setti.missleheight * setti.showersize, setti.misslewidth * setti.showersize, self.enemy.posx - setti.showerwidth, 
-            0, pg.transform.rotate(setti.rightmissleImage, -90), 0, setti.showervel, self.dmg,  setti.splashtime, setti.crushImage, self.board))
+            0, pg.transform.rotate(setti.rightmissleImage, -90), 0, screen_size_factor * setti.showervel, self.dmg,  setti.splashtime, setti.crushImage, self.board))
             self.board.missles.append(Missle(setti.missleheight * setti.showersize, setti.misslewidth * setti.showersize, self.enemy.posx, 
-            0, pg.transform.rotate(setti.rightmissleImage, -90), 0, setti.showervel, self.dmg,  setti.splashtime, setti.crushImage, self.board))
+            0, pg.transform.rotate(setti.rightmissleImage, -90), 0, screen_size_factor * setti.showervel, self.dmg,  setti.splashtime, setti.crushImage, self.board))
             self.board.missles.append(Missle(setti.missleheight * setti.showersize, setti.misslewidth * setti.showersize, self.enemy.posx + setti.showerwidth, 
-            0, pg.transform.rotate(setti.rightmissleImage, -90), 0, setti.showervel, self.dmg,  setti.splashtime, setti.crushImage, self.board))
+            0, pg.transform.rotate(setti.rightmissleImage, -90), 0, screen_size_factor * setti.showervel, self.dmg,  setti.splashtime, setti.crushImage, self.board))
 
     
 class Mark(Character):
@@ -428,10 +434,10 @@ class Mark(Character):
             self.fatshotcd = pg.time.get_ticks()
             if dir == "right":
                 self.board.missles.append(Missle(setti.misslewidth * setti.fatshotfactor , setti.missleheight * setti.fatshotfactor, self.posx + self.width, 
-                self.posy + self.height * setti.shootheight, setti.fatrightmissleImage, setti.misvel + self.velx, self.vely*setti.spreadfactor, self.dmg, setti.splashtime, pg.transform.scale(setti.fatcrushImage, (setti.misslewidth*setti.fatshotfactor, setti.missleheight*setti.fatshotfactor)), self.board))
+                self.posy + self.height * setti.shootheight, setti.fatrightmissleImage, screen_size_factor * setti.misvel + self.velx, screen_size_factor * self.vely*setti.spreadfactor, self.dmg, setti.splashtime, pg.transform.scale(setti.fatcrushImage, (setti.misslewidth*setti.fatshotfactor, setti.missleheight*setti.fatshotfactor)), self.board))
             else:
                 self.board.missles.append(Missle(setti.misslewidth * setti.fatshotfactor , setti.missleheight * setti.fatshotfactor, self.posx - setti.fatshotwidth, 
-                self.posy + self.height * setti.shootheight, setti.fatleftmissleImage, -setti.misvel + self.velx, self.vely*setti.spreadfactor, self.dmg, setti.splashtime, pg.transform.scale(setti.fatcrushImage, (setti.misslewidth*setti.fatshotfactor, setti.missleheight*setti.fatshotfactor)), self.board))
+                self.posy + self.height * setti.shootheight, setti.fatleftmissleImage, screen_size_factor * -setti.misvel + self.velx, screen_size_factor * self.vely*setti.spreadfactor, self.dmg, setti.splashtime, pg.transform.scale(setti.fatcrushImage, (setti.misslewidth*setti.fatshotfactor, setti.missleheight*setti.fatshotfactor)), self.board))
 
 
 class Billy(Character):
@@ -443,18 +449,18 @@ class Billy(Character):
     def charm(self):
         if(pg.time.get_ticks() - self.charmcd > setti.charmcd):
             self.charmcd = pg.time.get_ticks()
-            self.board.charms.append(Charm(setti.charmwidth, setti.charmheight, self.posx + self.width/2, self.posy + self.height/2, setti.charmimage, setti.charmvelx, setti.charmcrushimage, self, self.board))
-            self.board.charms.append(Charm(setti.charmwidth, setti.charmheight, self.posx + self.width/2, self.posy + self.height/2, setti.charmimage, -setti.charmvelx, setti.charmcrushimage, self, self.board))
+            self.board.charms.append(Charm(setti.charmwidth, setti.charmheight, self.posx + self.width/2, self.posy + self.height/2, setti.charmimage, screen_size_factor * setti.charmvelx, setti.charmcrushimage, self, self.board))
+            self.board.charms.append(Charm(setti.charmwidth, setti.charmheight, self.posx + self.width/2, self.posy + self.height/2, setti.charmimage, screen_size_factor * -setti.charmvelx, setti.charmcrushimage, self, self.board))
 
     def shoot(self, dir):
         if (pg.time.get_ticks() - self.lastshot) > self.shootpause:
             self.lastshot = pg.time.get_ticks()
             if dir == "right":
                 self.board.missles.append(Missle(setti.misslewidth, setti.missleheight, self.posx + self.width, 
-                self.posy + self.height * setti.shootheight, setti.rightmissleImage, setti.misvel + self.velx, self.vely*setti.spreadfactor, self.dmg,  setti.splashtime, setti.crushImage, self.board))
+                self.posy + self.height * setti.shootheight, setti.rightmissleImage, screen_size_factor * setti.misvel + self.velx, screen_size_factor * self.vely*setti.spreadfactor, self.dmg,  setti.splashtime, setti.crushImage, self.board))
             else:
                 self.board.missles.append(Missle(setti.misslewidth, setti.missleheight, self.posx + setti.safeshot, 
-                self.posy + self.height * setti.shootheight, setti.leftmissleImage, -setti.misvel + self.velx, self.vely*setti.spreadfactor, self.dmg,  setti.splashtime, setti.crushImage, self.board))
+                self.posy + self.height * setti.shootheight, setti.leftmissleImage, screen_size_factor * -setti.misvel + self.velx, screen_size_factor * self.vely*setti.spreadfactor, self.dmg,  setti.splashtime, setti.crushImage, self.board))
 
 class Billy_motor(Character):
     def __init__(self, width, height, posx, posy, image, dmg, movespeed, accframes, shootpause, hp, jumpvel, board=None):
@@ -482,11 +488,16 @@ class Piro(Character):
             self.board.flames.append(Flame(setti.fire_size[0], setti.fire_size[1], self.enemy.posx + (self.enemy.width/2 - setti.fire_size[0]/2), self.enemy.posy+ (self.enemy.height - setti.fire_size[1]), setti.fire_images, self, self.board))
             self.last_fire = curr_time
     
+
+    
 pg.init()
-info = pg.display.Info() 
-screen_width,screen_height = info.current_w - setti.width_correction,info.current_h - setti.height_correction
-screen = pg.display.set_mode((screen_width,screen_height))
+infoObject = pg.display.Info()
+width = infoObject.current_w
+height = infoObject.current_h
+screen = pg.display.set_mode((width, height), pg.FULLSCREEN)
 plats = []
+screen_size_factor = width/setti.width
+
 #generate platforms randomly
 def draw_platforms():
     for i in range(setti.numberofplatforms):
@@ -494,11 +505,11 @@ def draw_platforms():
         platform_x, platform_y = 0, 0
         plat_width = random.choice(setti.platform_widths)
         while stopper:
-            platform_x = random.randint(0, screen_width)
-            platform_y = random.randint(0 + setti.platform_height_correction, screen_height)
+            platform_x = random.randint(0, width)
+            platform_y = random.randint(0 + setti.platform_height_correction, height)
             found = True
             for platform in plats:
-                if abs(platform.posx - platform_x) < setti.platform_dist[0] and abs(platform.posy - platform_y) < setti.platform_dist[1] or platform_x + plat_width > screen_width:
+                if abs(platform.posx - platform_x) < screen_size_factor * setti.platform_dist[0] and abs(platform.posy - platform_y) < screen_size_factor * setti.platform_dist[1] or platform_x + plat_width > width:
                     found = False
             stopper = not found
 
@@ -506,7 +517,7 @@ def draw_platforms():
         
 draw_platforms()
 
-board = Board(screen_width, screen_height, [Platform(2*screen_width, setti.platform_height, -500, screen_height - setti.platform_height), *plats], [], [], [], [], boys=[])
+board = Board(width, height, [Platform(2*width, setti.platform_height, -500, height - setti.platform_height), *plats], [], [], [], [], boys=[])
 
 
 
@@ -525,7 +536,7 @@ def generate_boy(name):
         return Billy_motor(*setti.billy_motor, board)
 
 
-boy_names = ['piro', 'billy']  # HERE CHANGE CHARACTERS
+boy_names = ['billy_motor', 'van']  # HERE CHANGE CHARACTERS
 
 boy1 = generate_boy(boy_names[0])
 boy2 = generate_boy(boy_names[1])
@@ -534,10 +545,7 @@ boy1.enemy = boy2
 boy2.enemy = boy1
 
 board.boys = [boy1, boy2]
-
-
-
-board.run()
+board.run(screen)
 
 
 
