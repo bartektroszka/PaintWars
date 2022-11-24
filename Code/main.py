@@ -27,6 +27,7 @@ class Board:
         self.remembered = False
         self.tremorcounter = 0
         self.tremoron = False
+        self.last_tremor = 0
         for missle in self.missles:
             missle.board = self
         for charm in self.charms:
@@ -69,7 +70,11 @@ class Board:
 
     def checktremor(self):
         while True:
-            if self.mark is not None and self.mark.prevvely>0 and self.mark.vely == 0:
+            curr_time = pg.time.get_ticks()
+            if curr_time - self.last_tremor < setti.tremor_cd:
+                yield
+            elif self.mark is not None and self.mark.prevvely>0 and self.mark.vely == 0:
+                self.last_tremor = curr_time
                 for step in range(setti.tremorsteps):
                     yield self.tremor(setti.maxtremor, step)
                 for pause in range(setti.tremorpause):
@@ -227,7 +232,7 @@ class Missle(Object):
         for x in self.board.boys:
             if (not self.crushed) and (self.checkhitcond(x)):
                 self.crushed = True
-                if x.stunned and self.width > setti.fatshotfactor * self.width * 0.9:
+                if x.stunned and self.width:
                     x.hp -= setti.stunnedbonus
                 x.hp -= self.dmg
                 self.crushtime = pg.time.get_ticks()
@@ -319,14 +324,19 @@ class Character(Object):
             if self.velx > -self.movespeed:
                 self.velx -= self.movespeed/self.accframes
             self.image = self.leftImage
-        elif self.velx < 0:
-            self.velx += self.movespeed/self.accframes
         if p_right:
             if self.velx < self.movespeed:
                 self.velx += self.movespeed/self.accframes
             self.image = self.rightImage
-        elif self.velx > 0:
-            self.velx -= self.movespeed/self.accframes
+        if not (p_left or p_right):
+            if abs(self.velx) < self.movespeed/self.accframes:
+                self.velx = 0
+            else:
+                if self.velx > 0:
+                    self.velx -= self.movespeed/self.accframes
+                elif  self.velx <0:
+                    self.velx += self.movespeed/self.accframes
+
         if self.stands() and self.vely>0:
             self.posy = self.stands().posy - self.height
             self.vely = 0
@@ -341,12 +351,14 @@ class Character(Object):
                 self.velx = screen_size_factor * setti.charmedvel
             else:
                 self.velx = - screen_size_factor * setti.charmedvel
-        if (self.posx + self.velx <= (self.board.width - self.width)) and (self.posx + self.velx >= 0):
-            self.posx += self.velx
+        self.posx += self.velx
         if(self.posx + self.velx > (self.board.width - self.width) and self.velx > 0):
             self.velx = 0
+            self.posx = self.board.width - self.width
         if(self.posx + self.velx < 0 and self.velx < 0):
             self.velx = 0
+            self.posx = 0
+
         
         self.posy += self.vely
         if(self.__class__.__name__ == 'Billy_motor'):
@@ -427,7 +439,6 @@ class Mark(Character):
     def __init__(self, width, height, posx, posy, image, dmg, movespeed, accframes, shootpause, hp, jumpvel, board=None):
         super().__init__(width, height, posx, posy, image, dmg, movespeed, accframes, shootpause, hp, jumpvel, board)
         self.fatshotcd = 0
-        self.tremorcd = 0
 
     def fatshot(self, dir):
         if(pg.time.get_ticks() - self.fatshotcd > setti.fatshotcd):
@@ -536,7 +547,7 @@ def generate_boy(name):
         return Billy_motor(*setti.billy_motor, board)
 
 
-boy_names = ['billy_motor', 'van']  # HERE CHANGE CHARACTERS
+boy_names = ['van', 'mark']  # HERE CHANGE CHARACTERS
 
 boy1 = generate_boy(boy_names[0])
 boy2 = generate_boy(boy_names[1])

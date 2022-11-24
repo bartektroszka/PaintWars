@@ -88,6 +88,7 @@ fatshotcd = 2000
 fatcrushImage = get_image('../Assets/Pics/fatsplachimage.png')
 stunnedbonus = 2
 maxstunnedframes = 140
+tremor_cd = 6000
 
 #billy
 billysize = [100, 120]
