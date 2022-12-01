@@ -127,7 +127,7 @@ billy_motorImage = pg.transform.scale(get_image("../Assets/Pics/billy_motor.png"
 
 size_factor = 2 #real width can be as big as picture width ;/
 billy_motor_misslevel=20
-billy_jumpvel = 7
+billy_jumpvel = 8
 billy_motor_hit_velx = 1
 billy_motor_hit_vely = 0.5
 billy_mottor_missle_velx_spread_factor = 0.3

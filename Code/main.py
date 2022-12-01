@@ -151,7 +151,7 @@ class Platform(Object):
     def __init__(self, width, height, posx, posy):
         super().__init__(width, height, posx, posy, setti.platformimage)
     def draw(self):
-        super(Platform, self).draw()
+        super().draw()
     
 
 
@@ -517,7 +517,7 @@ def draw_platforms():
         plat_width = random.choice(setti.platform_widths)
         while stopper:
             platform_x = random.randint(0, width)
-            platform_y = random.randint(0 + setti.platform_height_correction, height)
+            platform_y = random.randint(setti.platform_height_correction, height - setti.platform_height)
             found = True
             for platform in plats:
                 if abs(platform.posx - platform_x) < screen_size_factor * setti.platform_dist[0] and abs(platform.posy - platform_y) < screen_size_factor * setti.platform_dist[1] or platform_x + plat_width > width:
@@ -528,7 +528,7 @@ def draw_platforms():
         
 draw_platforms()
 
-board = Board(width, height, [Platform(2*width, setti.platform_height, -500, height - setti.platform_height), *plats], [], [], [], [], boys=[])
+board = Board(width, height, [Platform(2*width, setti.platform_height, -500, height - setti.platform_height/2), *plats], [], [], [], [], boys=[])
 
 
 
@@ -547,7 +547,7 @@ def generate_boy(name):
         return Billy_motor(*setti.billy_motor, board)
 
 
-boy_names = ['van', 'mark']  # HERE CHANGE CHARACTERS
+boy_names = ['billy_motor', 'billy']  # HERE CHANGE CHARACTERS
 
 boy1 = generate_boy(boy_names[0])
 boy2 = generate_boy(boy_names[1])
