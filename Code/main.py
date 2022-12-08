@@ -13,7 +13,8 @@ from itertools import cycle
 
 class Board:
     running = True
-    def __init__(self, width, height, platforms, missles, charms, objects, flames, boys=[]):
+    def __init__(self, width, height, platforms, missles, charms, objects, flames, menu, boys=[]):
+        self.is_menu = True
         self.width = width
         self.height = height
         if not hasattr(self, 'mark'):
@@ -35,9 +36,13 @@ class Board:
         for platform in self.platforms:
             platform.board = self
         self.boys=boys
+        self.menu = menu
      
     
     def draw(self):
+        if self.menu:
+            self.menu.draw()
+            return
         for x in self.platforms:
             x.draw()
         for boy in self.boys:
@@ -126,6 +131,19 @@ class Board:
                 screen.blit(bg, bg.get_rect())  
                 self.draw()
                 pg.display.flip()   
+
+
+class Menu:
+    def __init__(self, width, height, board_width, board_height):
+        self.image = setti.menupic
+        self.width = width
+        self.height = height
+        self.board_width = board_width
+        self.board_height = board_height
+        
+
+    def draw(self):
+        screen.blit(self.image, (self.board_width/2 - self.width/2, self.board_height/2 - self.height/2))
 
 
 class Object:
@@ -528,7 +546,7 @@ def draw_platforms():
         
 draw_platforms()
 
-board = Board(width, height, [Platform(2*width, setti.platform_height, -500, height - setti.platform_height/2), *plats], [], [], [], [], boys=[])
+board = Board(width, height, [Platform(2*width, setti.platform_height, -500, height - setti.platform_height/2), *plats], [], [], [], [], Menu(setti.menuwidth, setti.menuheight, width, height), boys=[])
 
 
 

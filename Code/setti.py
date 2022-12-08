@@ -49,11 +49,20 @@ leftmissleImage = pg.transform.scale(pg.transform.rotate(missleImage, 270), (mis
 platform_dist = [550, 40]
 platform_widths = [300, 250, 500, 450]
 songs = ['../Assets/Sounds/pump.wav', '../Assets/Sounds/sweetdreams.wav', '../Assets/Sounds/duhast.wav', '../Assets/Sounds/intheend.wav', '../Assets/Sounds/♂RIGHT ♂INTRO ♂.wav', '../Assets/Sounds/dueloffate.wav']
-backgrounds = ["../Assets/Pics/bg2.png", "../Assets/Pics/bg3.png", "../Assets/Pics/bg4.png", "../Assets/Pics/bg5.png"]
+backgrounds = ["../Assets/Pics/bg2.png", "../Assets/Pics/bg3.png", "../Assets/Pics/bg4.png", "../Assets/Pics/bg5.png", "../Assets/Pics/bg6.png"]
 platform_height= 25
 width_correction = 0
 height_correction = 200
 platform_height_correction = 200
+
+
+
+#MENU
+menuwidth = 1200
+menuheight = 700
+menupic = pg.transform.scale(get_image("../Assets/Pics/menupic.jpg"), (menuwidth, menuheight))
+
+
 
 #VAN
 vansize = [80, 120]
