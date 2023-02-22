@@ -57,12 +57,31 @@ platform_height_correction = 200
 
 
 
+#CURSOR
+cursor_default_width = 35
+cursor_default_height = 35
+cursor_default_image = pg.transform.scale(get_image("../Assets/Pics/cursor_default.png"), (cursor_default_width, cursor_default_height))
+
+cursor_pointer_width = 40
+cursor_pointer_height = 60
+cursor_pointer_image = pg.transform.scale(get_image("../Assets/Pics/cursor_pointer.png"), (cursor_pointer_width, cursor_pointer_height))
+
+
 #MENU
-menuwidth = 1200
-menuheight = 700
-menupic = pg.transform.scale(get_image("../Assets/Pics/menupic.jpg"), (menuwidth, menuheight))
-
-
+menu_width = 1200
+menu_height = 700
+menupic = pg.transform.scale(get_image("../Assets/Pics/menupic.png"), (menu_width, menu_height))
+arrow_button_width = 60
+arrow_button_height = 50
+left_arrow_button_image =  pg.transform.scale(get_image("../Assets/Pics/left_arrow_button.png"), (arrow_button_width, arrow_button_height))
+right_arrow_button_image = pg.transform.scale(pg.transform.flip(get_image("../Assets/Pics/left_arrow_button.png"), True, False), (arrow_button_width, arrow_button_height))
+keyboard_button_width = 45
+keyboard_button_height = 40
+keyboard_button_image = pg.transform.scale(get_image("../Assets/Pics/keyboard_button.png"), (keyboard_button_width, keyboard_button_height))
+keyboard_gap = 5
+start_button_width = 200
+start_button_height= 70
+start_button_image = pg.transform.scale(get_image("../Assets/Pics/start.png"), (start_button_width, start_button_height))
 
 #VAN
 vansize = [80, 120]
@@ -145,3 +164,8 @@ billy_motor_hit_cd = 2000
 #width, height, posx, posy, images, dmg, movespeed,accframes,  shootpause, hp, 0
 billy_motor = [billy_motorsize[0], billy_motorsize[1], 600, 500, billy_motorImage, 1, 16, 50, 300, 8, billy_jumpvel]
 billy_motor_hit_dmg_multiplier = 0.3
+
+
+
+
+character_images = {'billy': {'image': billyImage, 'width': billysize[0], 'height': billysize[1] }, 'billy_motor': {'image': billy_motorImage, 'width': billy_motorsize[0] , 'height': billy_motorsize[1]}, "van": {'image': vanImage, 'width': vansize[0], 'height': vansize[1]}, "piro": {'image': piroImage, 'width': pirosize[0], 'height': pirosize[1]}, "mark": {'image': markImage, 'width': marksize[0], 'height': marksize[1]}}

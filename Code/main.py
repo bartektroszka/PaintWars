@@ -37,12 +37,10 @@ class Board:
             platform.board = self
         self.boys=boys
         self.menu = menu
+        self.menu.board = self
      
     
     def draw(self):
-        if self.menu:
-            self.menu.draw()
-            return
         for x in self.platforms:
             x.draw()
         for boy in self.boys:
@@ -95,7 +93,11 @@ class Board:
         pg.display.set_caption(setti.title)
         backgroundPic = random.choice(setti.backgrounds)
         bg = pg.transform.scale(setti.get_image(backgroundPic).convert_alpha(), (self.width, self.height))
+        pg.mouse.set_visible(False)
         while self.running:
+                
+            while(self.menu.is_running):
+                self.menu.run()
 
             pg.time.delay(6)
             for event in pg.event.get():
@@ -109,8 +111,8 @@ class Board:
             
             else:
                 if len(self.boys) >=2:
-                    self.boys[0].update(keys[pg.K_w], keys[pg.K_a], keys[pg.K_d], keys[pg.K_f], keys[pg.K_g], keys[pg.K_h])
-                    self.boys[1].update(keys[pg.K_UP], keys[pg.K_LEFT], keys[pg.K_RIGHT], keys[pg.K_b], keys[pg.K_n], keys[pg.K_m])
+                    self.boys[0].update(keys[pg.K_w], keys[pg.K_a], keys[pg.K_d], keys[pg.K_c], keys[pg.K_v], keys[pg.K_b])
+                    self.boys[1].update(keys[pg.K_UP], keys[pg.K_LEFT], keys[pg.K_RIGHT], keys[pg.K_i], keys[pg.K_o], keys[pg.K_p])
                 for x in self.missles:
                     x.move()
                 end = False
@@ -133,17 +135,7 @@ class Board:
                 pg.display.flip()   
 
 
-class Menu:
-    def __init__(self, width, height, board_width, board_height):
-        self.image = setti.menupic
-        self.width = width
-        self.height = height
-        self.board_width = board_width
-        self.board_height = board_height
-        
 
-    def draw(self):
-        screen.blit(self.image, (self.board_width/2 - self.width/2, self.board_height/2 - self.height/2))
 
 
 class Object:
@@ -164,6 +156,177 @@ class Object:
         if (self.posx + self.width > x.posx) and (self.posx  < x.posx + x.width) and (self.posy + self.height > x.posy) and (self.posy < x.posy + x.height):
             return True
         return False
+
+class Menu:
+    def get_next_character_index(self, current_index):
+        if(current_index == len(self.characters) - 1):
+            return 0
+        else:
+            return current_index + 1
+
+    def get_previous_character_index(self, current_index):
+        if(current_index == 0):
+            return len(self.characters) - 1
+        else:
+            return current_index - 1
+
+    def user_1_left_arrow_click(self):
+        self.user_1_character_index = self.get_previous_character_index(self.user_1_character_index)
+        self.user_1_character = setti.character_images[self.characters[self.user_1_character_index]]
+    def user_1_right_arrow_click(self):
+        self.user_1_character_index = self.get_next_character_index(self.user_1_character_index)
+        self.user_1_character = setti.character_images[self.characters[self.user_1_character_index]]
+    def user_2_left_arrow_click(self):
+        self.user_2_character_index = self.get_previous_character_index(self.user_2_character_index)
+        self.user_2_character = setti.character_images[self.characters[self.user_2_character_index]]
+    def user_2_right_arrow_click(self):
+        self.user_2_character_index = self.get_next_character_index(self.user_2_character_index)
+        self.user_2_character = setti.character_images[self.characters[self.user_2_character_index]]
+
+    def start_game(self):
+        boy_names = [self.characters[self.user_1_character_index], self.characters[self.user_2_character_index]]  # HERE CHANGE CHARACTERS
+        boy1 = generate_boy(boy_names[0])
+        boy2 = generate_boy(boy_names[1])
+        boy1.enemy = boy2
+        boy2.enemy = boy1
+        self.board.boys = [boy1, boy2]
+        self.is_running = False
+
+
+    def __init__(self, board_width, board_height):
+        self.board = None
+        self.board_width = board_width
+        self.board_height = board_height
+        self.is_running = True
+        self.image = setti.menupic
+        self.width = setti.menu_width
+        self.height = setti.menu_height
+        self.characters = ['mark', 'van', 'billy', 'piro', 'billy_motor']
+
+        self.user_1_character_index = 1
+        self.user_2_character_index = 3
+        self.user_1_character = setti.character_images[self.characters[self.user_1_character_index]]
+        self.user_2_character = setti.character_images[self.characters[self.user_2_character_index]]
+        self.x_offset = (self.board_width - self.width) /2
+        self.y_offset = (self.board_height - self.height) /2
+        self.user_1_left_arrow_button  = Button(setti.arrow_button_width, setti.arrow_button_height, self.x_offset + 0.15*self.width - setti.arrow_button_width/2, self.y_offset + 0.3*self.height, setti.left_arrow_button_image,  handle_click=self.user_1_left_arrow_click)
+        self.user_1_right_arrow_button = Button(setti.arrow_button_width, setti.arrow_button_height, self.x_offset + 0.35*self.width - setti.arrow_button_width/2, self.y_offset + 0.3*self.height, setti.right_arrow_button_image, handle_click=self.user_1_right_arrow_click)
+        self.user_2_left_arrow_button  = Button(setti.arrow_button_width, setti.arrow_button_height, self.x_offset + 0.65*self.width - setti.arrow_button_width/2, self.y_offset + 0.3*self.height, setti.left_arrow_button_image,  handle_click=self.user_2_left_arrow_click)
+        self.user_2_right_arrow_button = Button(setti.arrow_button_width, setti.arrow_button_height, self.x_offset + 0.85*self.width - setti.arrow_button_width/2, self.y_offset + 0.3*self.height, setti.right_arrow_button_image, handle_click=self.user_2_right_arrow_click)
+        self.start_button = Button(setti.start_button_width, setti.start_button_height, self.x_offset + self.width/2 - setti.start_button_width/2, self.y_offset + 0.8 * self.height, setti.start_button_image, handle_click=self.start_game)
+        
+        self.buttons = [self.user_1_left_arrow_button, self.user_1_right_arrow_button, self.user_2_left_arrow_button, self.user_2_right_arrow_button, self.start_button]
+        self.user_1_button_start_position = [self.x_offset + 0.12*self.width, self.y_offset + 0.5*self.height]
+        self.user_2_button_start_position = [self.x_offset + 0.62*self.width, self.y_offset + 0.5*self.height]
+
+        self.keyboard_buttons = [Button(setti.keyboard_button_width, setti.keyboard_button_height, self.user_1_button_start_position[0] + setti.keyboard_button_width, self.user_1_button_start_position[1], setti.keyboard_button_image, text="W"),
+                                 Button(setti.keyboard_button_width, setti.keyboard_button_height, self.user_1_button_start_position[0], self.user_1_button_start_position[1] + setti.keyboard_button_height + setti.keyboard_gap, setti.keyboard_button_image, text="A"),
+                                 Button(setti.keyboard_button_width, setti.keyboard_button_height, self.user_1_button_start_position[0] + setti.keyboard_button_width + setti.keyboard_gap, self.user_1_button_start_position[1] + setti.keyboard_button_height + setti.keyboard_gap, setti.keyboard_button_image, text="S"),
+                                 Button(setti.keyboard_button_width, setti.keyboard_button_height, self.user_1_button_start_position[0] + 2*setti.keyboard_button_width + 2*setti.keyboard_gap, self.user_1_button_start_position[1] + setti.keyboard_button_height + setti.keyboard_gap, setti.keyboard_button_image, text="D"),
+                                 Button(setti.keyboard_button_width, setti.keyboard_button_height, self.user_1_button_start_position[0] + 4*setti.keyboard_button_width + 4*setti.keyboard_gap, self.user_1_button_start_position[1] + setti.keyboard_button_height + setti.keyboard_gap, setti.keyboard_button_image, text="C"),
+                                 Button(setti.keyboard_button_width, setti.keyboard_button_height, self.user_1_button_start_position[0] + 5*setti.keyboard_button_width + 5*setti.keyboard_gap, self.user_1_button_start_position[1] + setti.keyboard_button_height + setti.keyboard_gap, setti.keyboard_button_image, text="V"),
+                                 Button(setti.keyboard_button_width, setti.keyboard_button_height, self.user_1_button_start_position[0] + 6*setti.keyboard_button_width + 6*setti.keyboard_gap, self.user_1_button_start_position[1] + setti.keyboard_button_height + setti.keyboard_gap, setti.keyboard_button_image, text="B"),
+
+                                 Button(setti.keyboard_button_width, setti.keyboard_button_height, self.user_2_button_start_position[0] + setti.keyboard_button_width, self.user_2_button_start_position[1], setti.keyboard_button_image, text="↑"),
+                                 Button(setti.keyboard_button_width, setti.keyboard_button_height, self.user_2_button_start_position[0], self.user_2_button_start_position[1] + setti.keyboard_button_height + setti.keyboard_gap, setti.keyboard_button_image, text="←"),
+                                 Button(setti.keyboard_button_width, setti.keyboard_button_height, self.user_2_button_start_position[0] + setti.keyboard_button_width + setti.keyboard_gap, self.user_2_button_start_position[1] + setti.keyboard_button_height + setti.keyboard_gap, setti.keyboard_button_image, text="↓"),
+                                 Button(setti.keyboard_button_width, setti.keyboard_button_height, self.user_2_button_start_position[0] + 2*setti.keyboard_button_width + 2*setti.keyboard_gap, self.user_2_button_start_position[1] + setti.keyboard_button_height + setti.keyboard_gap, setti.keyboard_button_image, text="→"),
+                                 Button(setti.keyboard_button_width, setti.keyboard_button_height, self.user_2_button_start_position[0] + 4*setti.keyboard_button_width + 4*setti.keyboard_gap, self.user_2_button_start_position[1] + setti.keyboard_button_height + setti.keyboard_gap, setti.keyboard_button_image, text="I"),
+                                 Button(setti.keyboard_button_width, setti.keyboard_button_height, self.user_2_button_start_position[0] + 5*setti.keyboard_button_width + 5*setti.keyboard_gap, self.user_2_button_start_position[1] + setti.keyboard_button_height + setti.keyboard_gap, setti.keyboard_button_image, text="O"),
+                                 Button(setti.keyboard_button_width, setti.keyboard_button_height, self.user_2_button_start_position[0] + 6*setti.keyboard_button_width + 6*setti.keyboard_gap, self.user_2_button_start_position[1] + setti.keyboard_button_height + setti.keyboard_gap, setti.keyboard_button_image, text="P")
+                                 ]
+
+   
+
+    def draw(self):
+        screen.fill([0,0,0])
+        screen.blit(self.image, (self.board_width/2 - self.width/2, self.board_height/2 - self.height/2))
+        for button in self.buttons:
+            button.draw()
+        for button in self.keyboard_buttons:
+            button.draw()
+        screen.blit(self.user_1_character['image'], (self.x_offset + 0.25*self.width - self.user_1_character['width']/2, self.y_offset + 0.3*self.height - self.user_1_character['height'] + setti.arrow_button_height))
+        screen.blit(self.user_2_character['image'], (self.x_offset + 0.75*self.width - self.user_2_character['width']/2, self.y_offset + 0.3*self.height - self.user_2_character['height'] + setti.arrow_button_height))
+        
+
+
+    def run(self):
+        default_cursor = setti.cursor_default_image
+        pointer_cursor = setti.cursor_pointer_image
+        while self.is_running:
+            is_pointer_cursor = False
+            mouse_pos = pg.mouse.get_pos()
+            for event in pg.event.get():
+                keys = pg.key.get_pressed()
+                if keys[pg.K_ESCAPE]:
+                    self.is_running = False
+
+                for button in self.buttons:
+                        if button.check_if_clicked(mouse_pos):  
+                            if event.type == pg.MOUSEBUTTONDOWN:
+                                button.handle_click()
+
+            self.draw()
+
+            
+            
+            
+            cursor_posx = mouse_pos[0]
+            cursor_posy = mouse_pos[1]
+
+            if mouse_pos[0] < self.x_offset:
+                pg.mouse.set_pos([self.x_offset, mouse_pos[1]])
+                cursor_posx = self.x_offset
+                cursor_posy = mouse_pos[1]
+            
+            elif  mouse_pos[0] > self.x_offset + self.width:
+                pg.mouse.set_pos([self.x_offset + self.width, mouse_pos[1]])
+                cursor_posx = self.x_offset + self.width
+                cursor_posy =  mouse_pos[1]
+            
+            if mouse_pos[1] < self.y_offset:
+                pg.mouse.set_pos([mouse_pos[0], self.y_offset])
+                cursor_posx = mouse_pos[0]
+                cursor_posy = self.y_offset
+            elif mouse_pos[1] > self.y_offset + self.height:
+                pg.mouse.set_pos([mouse_pos[0], self.y_offset + self.height])
+                cursor_posx = mouse_pos[0]
+                cursor_posy = self.y_offset + self.height
+
+            for button in self.buttons:
+                if button.check_if_clicked(mouse_pos):  
+                    screen.blit(pointer_cursor, (cursor_posx - setti.cursor_pointer_width/2, cursor_posy - setti.cursor_pointer_height/2))
+
+                    is_pointer_cursor = True
+            if not is_pointer_cursor:
+                screen.blit(default_cursor, (cursor_posx - setti.cursor_default_width/2, cursor_posy - setti.cursor_default_height/2))
+            
+            pg.display.flip()  
+            
+
+
+class Button(Object):
+    def __init__(self, width, height, posx, posy, image, handle_click=None, text=None, board=None):
+        super().__init__(width, height, posx, posy, image)
+        self.text = text
+        self.handle_click = handle_click
+
+    def check_if_clicked(self, mouse_pos):
+        if (mouse_pos[0] >= self.posx) and (mouse_pos[0] <= self.posx + self.width) and (mouse_pos[1] >= self.posy) and (mouse_pos[1] <= self.posy + self.height):
+            return True
+    def draw(self):
+        if not self.text:
+            super().draw()
+        else:
+            button = pg.Surface((self.width, self.height), pg.SRCALPHA, 32).convert_alpha()
+            font = pg.font.SysFont('firacode', 20, bold=True)
+            buttonBG = self.image
+            button.blit(buttonBG , (0, 0))
+            text = font.render(self.text, 1, (36, 30, 100))
+            text_rect = text.get_rect(center=(self.width/2, self.height/2 ))
+            button.blit(text, text_rect)
+            screen.blit(button, (self.posx, self.posy))
+
 
 class Platform(Object):
     def __init__(self, width, height, posx, posy):
@@ -546,7 +709,7 @@ def draw_platforms():
         
 draw_platforms()
 
-board = Board(width, height, [Platform(2*width, setti.platform_height, -500, height - setti.platform_height/2), *plats], [], [], [], [], Menu(setti.menuwidth, setti.menuheight, width, height), boys=[])
+board = Board(width, height, [Platform(2*width, setti.platform_height, -500, height - setti.platform_height/2), *plats], [], [], [], [], Menu(width, height), boys=[])
 
 
 
@@ -565,15 +728,7 @@ def generate_boy(name):
         return Billy_motor(*setti.billy_motor, board)
 
 
-boy_names = ['billy_motor', 'billy']  # HERE CHANGE CHARACTERS
 
-boy1 = generate_boy(boy_names[0])
-boy2 = generate_boy(boy_names[1])
-
-boy1.enemy = boy2
-boy2.enemy = boy1
-
-board.boys = [boy1, boy2]
 board.run(screen)
 
 
